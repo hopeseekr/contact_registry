@@ -1,0 +1,16 @@
+SBConsultants - ChangeLog - 2008-04-03
+
+
+* Migrated CSS changes to the header from 20080403
+* Changed "add profile" to "Create New Profile" and "add note" to "Create New Note"
+* Fixed SQL bug that prevented normal users from Viewing All Records
+* Fixed bug where records were not properly shown after 500 records as a normal user
+* Sort all Customer records by RollupID (both main page and on View All) to enable browsing integrity
+* Changed <form> method for "View All Records" to "get" inorder to avoid "Click yes to resubmit form"
+  when backspacing.
+* Added header/logout to administrator homepage
+* Changed Admin's "View customer profiles" link to blue box
+* Added darkblue message notification box to header
+* Added "Delete Profile" for Admin
+* Added "Delete Note" for Admin
+* Added "Delete Contract Account" for Admin
