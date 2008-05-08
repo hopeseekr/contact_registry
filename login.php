@@ -1,15 +1,34 @@
 <?php
-function expiredPassword()
+
+ob_start();
+
+require_once('views/LoginView.inc');
+require_once('controllers/LoginController.inc');
+
+$T = new LoginView('tpl/login.tpl');
+
+if (isset($_POST['username']))
 {
-    $_SESSION['expiredPassword'] = true;
-    header("Location: http://" . $_SERVER['HTTP_HOST'] . '/changePassword.php');
-    exit;
+    $guard = LoginController::getInstance();
+
+    try
+    {
+        $guard->validateUser();
+    }
+    catch(Exception $e)
+    {
+        if ($e->getCode() == LOGIN_BLANK_USER)
+        {
+            // A blank form is a distinct possibility; let's do nothing.
+        }
+    }
 }
+
+echo $T->parse();
+
 
 function login()
 {
-    if (isset($_POST['username']))
-    {
         require_once('lib/db.php');
 
         db_connect();
@@ -35,7 +54,7 @@ function login()
 
             if ((isset($results->password) && $results->password == '') || (USER_AUTH == 'advanced' && strtotime($results->passwordexpires) < time()))
             {
-                expiredPassword();
+                self::handleExpiredPassword();
             }
     
             if ($results->accounttypeid == 2)
@@ -59,34 +78,6 @@ function login()
             print '<h1>Login failed!!</h1>';
             return false;
         }
-    }
 }
 
-login();
 ?>
-<html>
-    <head>
-        <title>Login | SBConsultants</title>
-    </head>
-    <body>
-        <h2>Consultant Login</h2>
-        <form method="post">
-            <table style="border: 0">
-                <tr>
-                    <th>Username:</th>
-                    <td><input type="text" id="username" name="username" style="width: 200px" value="<?php echo $_POST['username']; ?>"/></td>
-                </tr>
-                <tr>
-                    <th>Password:</th>
-                    <td><input type="password" id="password" name="password" style="width: 200px"/></td>
-                </tr>
-                <tr>
-                    <td>&nbsp;</td>
-                    <td>
-                        <input type="submit" value="Log in" style="width: 100px"/>
-                    </td>
-                </tr>
-            </table>
-        </form>
-    </body>
-</html>

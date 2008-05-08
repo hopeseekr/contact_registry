@@ -16,15 +16,10 @@ class LoginView extends Blitz
     public function registerUser()
     {
         $user = '';
-        if (!isset($_REQUEST['username']))
+        if (isset($_REQUEST['username']))
         {
-            $user = 'Guest';
+            $user = filter_input(INPUT_GET, 'username', FILTER_SANITIZE_STRING);
         }
-        else
-        {
-            $user = $_REQUEST['username'];
-        }
-        print 'asdf';
 
         $this->set(array('username' => $user));
         return $user;
@@ -40,7 +35,7 @@ class LoginView extends Blitz
             // Restart ob_start()
             ob_start();
 
-            $this->set(array('rawHTML' => $rawHTML));
+            $this->block('rawHTML', array('rawHTML' => $rawHTML));
         }
     }
 }

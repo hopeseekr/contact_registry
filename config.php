@@ -57,45 +57,6 @@ function logout()
     session_destroy();
 }
 
-function validateUser($user_in, $pass_in)
-{
-    if ($pass_in != '')
-    {
-        $pass_cond = 'Password=?';
-    }
-    else
-    {
-        $pass_cond = 'Password IS NULL';
-    }
-
-    $dbh = MDB2::singleton();
-
-    if (USER_AUTH == 'simple')
-    {
-        $qs = $dbh->prepare('SELECT AccountTypeID, Password, ConsultantID ' .
-                            'FROM tblConsultants WHERE UserName=? AND ' . $pass_cond);
-    }
-    else if (USER_AUTH == 'advanced')
-    {
-        $pass_in = md5($pass_in);
-        $qs = $dbh->prepare('SELECT AccountTypeID, Password, ConsultantID, Active, PasswordExpires ' .
-                            'FROM tblConsultants WHERE UserName=? AND ' . $pass_cond);
-    }
-
-    $res = $qs->execute(array($user_in, $pass_in));
-    $results = $res->fetchRow();
-    
-    /* --- For security reasons, only keep the password if it is already NULL --- */
-
-    if ($results->password != '')
-    {
-        unset($results->password);
-    }
-
-    /* --- The user has been validated or NULL is returned --- */
-    return $results;
-}
-
 function printHeader($title_in)
 {
 ?>
