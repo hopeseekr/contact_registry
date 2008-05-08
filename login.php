@@ -10,9 +10,12 @@ function login()
 {
     if (isset($_POST['username']))
     {
-        require_once('lib/db.php');
-
-        db_connect();
+        require_once('config.php');
+        $db = getDB();
+        
+        mysql_connect($db['server'], $db['user'], $db['pass']);
+        mysql_select_db($db['database']);
+        print mysql_error();
 
         $results = validateUser($_POST['username'], $_POST['password']);
 
@@ -33,7 +36,7 @@ function login()
             $_SESSION['AccountTypeID'] = $results->AccountTypeID;
             $_SESSION['ip'] = $_SERVER['REMOTE_ADDR'];
 
-            if (strtotime($results->PasswordExpires) < time() || $results->Password == '')
+            if ($results->PasswordExpires < time() || $results->Password == '')
             {
                 expiredPassword();
             }

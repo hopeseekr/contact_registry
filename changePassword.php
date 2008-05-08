@@ -47,7 +47,7 @@ if (isset($_POST['password']))
     {
         /* --- Every thing looks good to go; change the pass --- */        
         $ConsultantID = $_SESSION['ConsultantID'];
-        $qs = sprintf('UPDATE tblconsultants SET Password=PASSWORD("%s"), ' .
+        $qs = sprintf('UPDATE tblconsultants SET Password=MD5("%s"), ' .
                       'PasswordExpires=DATE_ADD(NOW(), INTERVAL 180 DAY) ' .
                       'WHERE ConsultantID=%d',
                       $_POST['password'][0],

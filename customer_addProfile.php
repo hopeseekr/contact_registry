@@ -10,9 +10,11 @@ if (!isset($_POST['RollupID']) || !isset($_POST['CreatorID']))
 
 //print '<pre>' . print_r($_POST, true) . '</pre>'; exit;
 require_once('config.php');
+$db = getDB();
 
-require_once('lib/db.php');
-db_connect();
+mysql_connect($db['server'], $db['user'], $db['pass']);
+mysql_select_db($db['database']);
+print mysql_error();
 
 $q1s = sprintf('INSERT INTO tblprofiles (RollupID, CreationDate, CreatorID, Called, ' .
                'Visited, Question1, Question2, Question3, Question4, Question5, Question6) ' .
