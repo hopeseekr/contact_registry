@@ -1,6 +1,8 @@
 <?php
 define('LOGIN_BLANK_USER', 1);
 define('LOGIN_BAD_CREDS', 2);
+define('LOGIN_INACTIVE', 3);
+define('LOGIN_PASSWORD_EXPIRED', 4);
 
 require_once('lib/db.php');
 
@@ -42,19 +44,11 @@ class LoginController extends DatabaseController
         return self::$instance;
     }
 
-    private function handlExpiredPassword()
+    private function login()
     {
-        $_SESSION['expiredPassword'] = true;
-        header("Location: http://" . $_SERVER['HTTP_HOST'] . '/changePassword.php');
-        exit;
-    }
-    
-    public function validateUser()
-    {
-
         if (!isset($_POST['username']) || $_POST['username'] == '' || !isset($_POST['password']))
         {
-            throw new Exception('No user credentials entered', LOGIN_BLANK_USER);
+            throw new Exception('No user credentials entered.', LOGIN_BLANK_USER);
         }
 
         $user = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
@@ -90,7 +84,7 @@ class LoginController extends DatabaseController
         
         if ($results === false)
         {
-            throw new Exception('Invalid login credentials', LOGIN_BAD_CREDS);
+            throw new Exception('Invalid login credentials.', LOGIN_BAD_CREDS);
         }
         
         /* --- For security reasons, only keep the password if it is already NULL --- */
@@ -99,25 +93,46 @@ class LoginController extends DatabaseController
             unset($results->Password);
         }
     
-        /* --- The user has been validated or NULL is returned --- */
+        /* --- The user's access creds are either valid or NULL is returned --- */
         $this->consultant = $results;
+        $this->consultant->UserName = $user;
     }
     
-    public function handleValidationExceptions($code, $message)
+    public function validateUser()
     {
-        if ($code == LOGIN_BLANK_USER)
+        /* If the user cannot log in, an exception is thrown, negating the need for
+          further error handling in this scope.  Neat, huh? */
+        $this->login();
+        
+        if (USER_AUTH == 'advanced' && $this->consultant->Active == 0)
         {
-            // A blank form is a distinct possibility; let's do nothing.
+            throw new Exception('Your account is not active.  Please contact your administrator.', LOGIN_INACTIVE);
         }
-        else if ($code == LOGIN_BAD_CREDS)
+         
+        /* At this point, it is known for a fact that the user has access, so let's create their session. */
+        $this->startSession();
+        
+        if ((isset($this->consultant->Password) && $this->consultant->Password == '') || (USER_AUTH == 'advanced' && strtotime($this->consultant->PasswordExpires) < time()))
         {
-            $this->handleLoginFailed($message);
+            throw new Exception('Your password has expired.  Please contact your administrator.', LOGIN_PASSWORD_EXPIRED);
         }
-        else
-        {
-            /* Because any thing could happen */
-            throw new Exception($message, $code);
-        }
+        
+        /* At this point, the user has access and is good to go. */
+    }
+    
+    public function getConsultant()
+    {
+        return $this->consultant;
+    }
+    
+    private function startSession()
+    {
+        session_start();
+
+        $_SESSION['username'] = $this->consultant->UserName;
+        $_SESSION['ConsultantID'] = $this->consultant->ConsultantID;
+        $_SESSION['AccountTypeID'] = $this->consultant->AccountTypeID;
+        $_SESSION['ip'] = $_SERVER['REMOTE_ADDR'];
     }
 }
 ?>

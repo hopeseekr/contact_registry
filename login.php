@@ -15,64 +15,38 @@ if (isset($_POST['username']))
     try
     {
         $guard->validateUser();
-        $T->block('debug', array('print_r' => print_r($consultant, true)));
-   }
+    }
     catch(Exception $e)
     {
-        $guard->handleValidationExceptions($e->getCode(), $e->getMessage());
-    }
-}
+        $code = $e->getCode();
+        $msg = $e->getMessage();
 
-echo $T->parse();
-
-
-function login()
-{
-        $results = validateUser($_POST['username'], $_POST['password']);
-
-        /* --- The user has been authenticated --- */
-        if ($results != null)
+        if ($code == LOGIN_BLANK_USER)
         {
-            if (USER_AUTH == 'advanced' && $results->active == 0)
-            {
-                print '<h2>Your account is not active.  Please contact your administrator.</h2>';
-                
-                return false;
-            }
-
-            session_start();
-
-            $_SESSION['username'] = $_POST['username'];
-            $_SESSION['ConsultantID'] = $results->ConsultantID;
-            $_SESSION['AccountTypeID'] = $results->AccountTypeID;
-            $_SESSION['ip'] = $_SERVER['REMOTE_ADDR'];
-
-            if ((isset($results->Password) && $results->Password == '') || (USER_AUTH == 'advanced' && strtotime($results->PasswordExpires) < time()))
-            {
-                handleExpiredPassword();
-            }
-    
-            if ($results->AccountTypeID == 2)
-            {
-                header("Location: http://" . $_SERVER['HTTP_HOST'] . '/customers.php');
-                exit;
-            }
-            else if ($results->AccountTypeID == 3)
-            {
-                $_SESSION['admin'] = true;
-                header("Location: http://" . $_SERVER['HTTP_HOST'] . '/admin/');
-                exit;
-            }
-            else
-            {
-                trigger_error($_POST['username'] . ' has an invalid Account Type of ' . $results->AccountTypeID, E_USER_ERROR);
-            }
+            // A blank form is a distinct possibility; let's do nothing.
+        }
+        else if ($code == LOGIN_BAD_CREDS ||
+                 $code == LOGIN_INACTIVE)
+        {
+            $T->handleLoginFailure($msg);
+        }
+        else if ($code == LOGIN_PASSWORD_EXPIRED)
+        {
+            $T->handleChangePassword();
         }
         else
         {
-            print '<h1>Login failed!!</h1>';
-            return false;
+            /* Because any thing could happen */
+            throw new Exception($msg, $code);
         }
+    }
+
+    /* The user is now logged in */
+//    $consultant = $guard->getConsultant();
+//    $T->block('debug', array('print_r' => print_r($consultant, true)));
+    $T->handleLoginSuccess();
 }
+
+echo $T->parse();
 
 ?>
