@@ -8,30 +8,18 @@ require_once('controllers/LoginController.inc');
 $T = new LoginView('tpl/login.tpl');
 
 if (isset($_POST['username']))
-{
+{    
     $guard = LoginController::getInstance();
 
+    /* --- Make sure we have a valid, active user with an uptodate password --- */
     try
     {
         $guard->validateUser();
-    }
+        $T->block('debug', array('print_r' => print_r($consultant, true)));
+   }
     catch(Exception $e)
     {
-        $code = $e->getCode();
-
-        if ($code == LOGIN_BLANK_USER)
-        {
-            // A blank form is a distinct possibility; let's do nothing.
-        }
-        else if ($code == LOGIN_BAD_CREDS)
-        {
-            $T->handleLoginFailed($e->getMessage());
-        }
-        else
-        {
-            /* Because any thing could happen */
-            throw new Exception($e->getMessage(), $e->getCode());
-        }
+        $guard->handleValidationExceptions($e->getCode(), $e->getMessage());
     }
 }
 
@@ -61,7 +49,7 @@ function login()
 
             if ((isset($results->Password) && $results->Password == '') || (USER_AUTH == 'advanced' && strtotime($results->PasswordExpires) < time()))
             {
-                self::handleExpiredPassword();
+                handleExpiredPassword();
             }
     
             if ($results->AccountTypeID == 2)

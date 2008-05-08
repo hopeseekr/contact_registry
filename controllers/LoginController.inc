@@ -102,5 +102,22 @@ class LoginController extends DatabaseController
         /* --- The user has been validated or NULL is returned --- */
         $this->consultant = $results;
     }
+    
+    public function handleValidationExceptions($code, $message)
+    {
+        if ($code == LOGIN_BLANK_USER)
+        {
+            // A blank form is a distinct possibility; let's do nothing.
+        }
+        else if ($code == LOGIN_BAD_CREDS)
+        {
+            $this->handleLoginFailed($message);
+        }
+        else
+        {
+            /* Because any thing could happen */
+            throw new Exception($message, $code);
+        }
+    }
 }
 ?>
