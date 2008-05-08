@@ -44,25 +44,25 @@ function login()
                 
                 return false;
             }
-    
+
             session_start();
-    
+
             $_SESSION['username'] = $_POST['username'];
-            $_SESSION['ConsultantID'] = $results->consultantid;
-            $_SESSION['AccountTypeID'] = $results->accounttypeid;
+            $_SESSION['ConsultantID'] = $results->ConsultantID;
+            $_SESSION['AccountTypeID'] = $results->AccountTypeID;
             $_SESSION['ip'] = $_SERVER['REMOTE_ADDR'];
 
-            if ((isset($results->password) && $results->password == '') || (USER_AUTH == 'advanced' && strtotime($results->passwordexpires) < time()))
+            if ((isset($results->Password) && $results->Password == '') || (USER_AUTH == 'advanced' && strtotime($results->PasswordExpires) < time()))
             {
                 self::handleExpiredPassword();
             }
     
-            if ($results->accounttypeid == 2)
+            if ($results->AccountTypeID == 2)
             {
                 header("Location: http://" . $_SERVER['HTTP_HOST'] . '/customers.php');
                 exit;
             }
-            else if ($results->accounttypeid == 3)
+            else if ($results->AccountTypeID == 3)
             {
                 $_SESSION['admin'] = true;
                 header("Location: http://" . $_SERVER['HTTP_HOST'] . '/admin/');
@@ -70,7 +70,7 @@ function login()
             }
             else
             {
-                trigger_error($_POST['username'] . ' has an invalid Account Type of ' . $results->accounttypeid, E_USER_ERROR);
+                trigger_error($_POST['username'] . ' has an invalid Account Type of ' . $results->AccountTypeID, E_USER_ERROR);
             }
         }
         else
