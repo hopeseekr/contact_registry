@@ -1,8 +1,6 @@
 <?php
 class LoginView extends Blitz
 {
-    private $news = array();
-    
     public function __construct($tmpl_name)
     {
         $status = parent::Blitz($tmpl_name);
