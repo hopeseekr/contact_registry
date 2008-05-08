@@ -1,10 +1,20 @@
 <?php
-function getDB()
+function getMySQLDBCreds()
 {
     return array('server' => 'localhost',
-                 'user' => 'sb',
-                 'pass' => 'a@d9-',
+                 'user' => 'root',
+                 'pass' => '',
                  'database' => 'sbconsultants');
+}
+
+/*function getDB()
+{
+    return getMySQLDBCreds();
+}*/
+
+function getSQLiteCreds()
+{
+    return '/var/www/blinds.com/htdocs/sbconsultants.sdb';
 }
 
 function constructParams()
@@ -43,28 +53,22 @@ function validateUser($user_in, $pass_in)
 {
     if ($pass_in != '')
     {
-        $pass_cond = 'Password=PASSWORD("%s")';
+        $pass_cond = 'Password="' . md5($pass_in) . '"';
     }
     else
     {
         $pass_cond = 'Password IS NULL';
     }
 
-    $qs = sprintf('SELECT AccountTypeID, Password, ConsultantID, Active, UNIX_TIMESTAMP(PasswordExpires) PasswordExpires ' .
-                  'FROM tblconsultants WHERE UserName="%s" AND ' . $pass_cond,
-                  mysql_real_escape_string($user_in),
-                  mysql_real_escape_string($pass_in));
-    $qq = mysql_query($qs);
-    print mysql_error();
-    $results = mysql_fetch_object($qq);
+    $dbh = $GLOBALS['dbh'];
+    $qs = $dbh->prepare('SELECT AccountTypeID, Password, ConsultantID, Active, PasswordExpires PasswordExpires ' .
+                        'FROM tblconsultants WHERE UserName=? AND ' . $pass_cond);
+    $qs->execute(array($user_in));
 
-    if (mysql_numrows($qq) > 0)
-    {
-        /* --- The user has been validated --- */
-        return $results;
-    }
+    $results = $qs->fetchObject();
 
-    return null;
+    /* --- The user has been validated or NULL is returned --- */
+    return $results;
 }
 
 function printHeader($title_in)
