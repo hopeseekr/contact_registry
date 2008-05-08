@@ -9,15 +9,13 @@ if (!isset($_SESSION['ConsultantID']) || !validateSession())
 }
 
 $ConsultantID = $_SESSION['ConsultantID'];
-$db = getDB();
 
-mysql_connect($db['server'], $db['user'], $db['pass']);
-mysql_select_db($db['database']);
-print mysql_error();
+require_once('lib/db.php');
+db_connect();
 
-if (isset($_REQUEST['record']) && is_numeric($_REQUEST['record']))
+if (isset($_GET['record']) && is_numeric($_GET['record']))
 {
-    $start = mysql_real_escape_string($_REQUEST['record']);
+    $start = $_GET['record'];
 }
 else
 {
@@ -26,17 +24,32 @@ else
 
 function getCustomersCount($ConsultantID)
 {
-    $q1s = 'SELECT COUNT(tblcustomers.RollupID) AS CustomerCount ' .
-           'FROM `tblallocation log` Inner Join tblcustomers ON `tblallocation log`.RollupID = tblcustomers.RollupID ' .
-           'WHERE ConsultantID=' . $ConsultantID;
-    
     if (isAdmin() == true)
     {
         $q1s = 'SELECT COUNT(tblcustomers.RollupID) AS CustomerCount FROM tblcustomers';
     }
+    else
+    {
+        if ($_REQUEST['db'] == 'sqlite')
+        {
+            $q1s = 'SELECT COUNT(tblcustomers.RollupID) AS CustomerCount ' .
+                   'FROM "tblAllocationLog" INNER JOIN tblcustomers ON "tblAllocationLog".RollupID = tblcustomers.RollupID ' .
+                   'WHERE ConsultantID=?';
+        }
+        else
+        {
+            xdebug_break();
+            $q1s = 'SELECT COUNT(tblcustomers.RollupID) AS CustomerCount ' .
+                   'FROM tblAllocationLog INNER JOIN tblcustomers ON tblAllocationLog.RollupID = tblcustomers.RollupID ' .
+                   'WHERE ConsultantID=?';
+        }
+    }
 
-    $q1q = mysql_query($q1s);
-    $count = mysql_result($q1q, 0);
+    $dbh = MDB2::singleton();
+    $qs = $dbh->prepare($q1s);
+    $res = $qs->execute(array($ConsultantID));
+
+    $count = $res->fetchCol($q1q);
     
     return $count;
 }
@@ -48,77 +61,104 @@ function getCustomerInformation($ConsultantID, $start = 0)
         $err_msg = 'Update of Customer failed: ' . $_GET['reason'] . '.';
     }
 
-    $q1s = 'SELECT tblcustomers.* FROM `tblallocation log` Inner Join tblcustomers ON `tblallocation log`.RollupID = tblcustomers.RollupID ' .
-           'WHERE ConsultantID=' . $ConsultantID . ' ORDER BY tblcustomers.RollupID LIMIT ' . $start . ', 1';
+    $dbh = MDB2::singleton();
+    $dbh->setLimit(1, $start);
 
     if (isAdmin() == true)
     {
-        $q1s = 'SELECT tblcustomers.* FROM tblcustomers LIMIT ' . $start . ', 1';
-    }
-
-    $q1q = mysql_query($q1s);
-    $results = mysql_fetch_object($q1q);
-
-    $q2s = 'SELECT SegmentID, SegmentName FROM tblsegment';
-    $q2q = mysql_query($q2s);
-
-    while ($q2r = mysql_fetch_object($q2q))
-    {
-        $segments[$q2r->SegmentID] = $q2r->SegmentName;
-    }
-
-    $q3s = 'SELECT LPBID, LPBType FROM tbllpbtypes';
-    $q3q = mysql_query($q3s);
-
-    while ($q3r = mysql_fetch_object($q3q))
-    {
-        $LPBIDs[$q3r->LPBID] = $q3r->LPBType;
-    }
-
-    $q4s = 'SELECT TerritoryID, TerritoryName FROM tblterritory';
-    $q4q = mysql_query($q4s);
-
-    while ($q4r = mysql_fetch_object($q4q))
-    {
-        $territories[$q4r->TerritoryID] = $q4r->TerritoryName;
-    }
+        $q1s = 'SELECT tblCustomers.* FROM tblCustomers';
+        $segments = array();
+        $q2s = 'SELECT SegmentID, SegmenttName FROM tblSegment';
+        $res = $dbh->query($q2s);
     
-    return array('customer' => $results,
-                 'segments' => $segments,
-                 'LPBIDs' => $LPBIDs,
-                 'territories' => $territories,
+        while ($r = $res->fetchRow())
+        {
+            $segments[$r->segmentid] = $r->segmenttname;
+        }
+        
+        $res->free();
+    
+        $LPBIDs = array();
+        $q3s = 'SELECT LPBID, LPBType FROM tblLPBTypes';
+        $qs = $dbh->prepare($q3s);
+        $res = $qs->execute();
+    
+        while ($r = $res->fetchRow())
+        {
+            $LPBIDs[$r->lpbid] = $r->lpbtype;
+        }
+        
+        $res->free();
+    
+        $territories = array();
+        $q4s = 'SELECT TerritoryID, TerritoryName FROM tblterritory';
+        $qs = $dbh->prepare($q4s);
+        $res = $qs->execute();
+    
+        while ($r = $res->fetchRow())
+        {
+            $territories[$r->territoryid] = $r->territoryname;
+        }
+    
+        $res->free();
+
+        $qs = $dbh->prepare($q1s);
+        $res = $qs->execute(array($ConsultantID));
+        $customers = $res->fetchRow();
+        $res->free();
+    }
+    else
+    {
+        $q1s = 'SELECT tblCustomers.*, ' .
+               'tblSegment.segmenttname, tblTerritory.territoryname, tblLPBTypes.lpbtype ' .
+               'FROM tblAllocationLog ' .
+               'INNER JOIN tblCustomers ON tblAllocationLog.RollupID = tblCustomers.RollupID ' .
+               'LEFT JOIN tblSegment ON tblSegment.segmentid = tblCustomers.segment ' .
+               'LEFT JOIN tblTerritory ON tblTerritory.territoryid = tblCustomers.territory ' .
+               'LEFT JOIN tblLPBTypes ON tblLPBTypes.lpbid = tblCustomers.lpbid ' .
+               'WHERE ConsultantID=? ORDER BY tblCustomers.RollupID';
+
+        $qs = $dbh->prepare($q1s);
+        $res = $qs->execute(array($ConsultantID));
+        $customers = $res->fetchRow();
+        $res->free();
+    
+        $segments = array($customers->segment => $customers->segmenttname);
+        $territories = array($customers->territory => $customers->territoryname);
+        $LPBIDs = array($customers->lpbid => $customers->lpbtype);
+
+        unset($customers->segmenttname);
+        unset($customers->territoryname);
+        unset($customers->lpbtype);
+    }
+
+    /* --- Reformat $customers --- */
+    $customers->segments = $segments;
+    $customers->territories = $territories;
+    $customers->lpbtypes = $LPBIDs;
+
+    print '<pre>' . print_r($customers, true) . '</pre>';
+    return array('customer' => $customers,
                  'err_msg' => $err_msg);
 }
 
 /* --- Due to a quirk in DB design, RollupID is called RollupNumber in tblcontractaccounts --- */
 function getContractAccounts($RollupID)
 {
-    if (isset($_GET['deleteCA']) && isset($_GET['ContractAccount']) && isAdmin())
-    {
-        $qs = 'DELETE FROM tblcontractaccounts WHERE ContractAccount="' . mysql_real_escape_string($_GET['ContractAccount']) . '"';
-        $qq = mysql_query($qs);
-
-        if ($qq == false)
-        {
-            header("Location: http://" . $_SERVER['HTTP_HOST'] . '/customers.php?customer_err=update+failed&reason=Contract+Account+could+not+be+deleted' . "&$params");
-        }
-        else
-        {
-            header("Location: http://" . $_SERVER['HTTP_HOST'] . '/customers.php?customer_err=update+failed&reason=Contract+Account+deleted' . "&$params");
-        }
-    }
-
     if (isset($_GET['accounts_err']) && $_GET['accounts_err'] == 'insert failed')
     {
         $err_msg = 'Insert of Contract Account ' . $_GET['ContractAccount'] . ' failed: ' . $_GET['reason'] . '.';
     }
 
-    $q1s = 'SELECT ContractAccount FROM tblcontractaccounts WHERE RollupNumber=' . $RollupID;
-    $q1q = mysql_query($q1s);
+    $dbh = MDB2::singleton();
+    $q1s = 'SELECT ContractAccount FROM tblcontractaccounts WHERE RollupNumber=?';
+    $qs = $dbh->prepare($q1s);
+    $res = $qs->execute(array($RollupID));
+    $accounts = array();
     
-    while ($q1r = mysql_fetch_object($q1q))
+    while ($r = $res->fetchRow())
     {
-        $accounts[] = $q1r->ContractAccount;
+        $accounts[] = $r->ContractAccount;
     }
     
     return array($accounts, $err_msg);
@@ -126,23 +166,28 @@ function getContractAccounts($RollupID)
 
 function getCustomerContacts($RollupID)
 {
+    $dbh = MDB2::singleton();
     $q1s = 'SELECT ContactNumberTypeID, ContactNumberType FROM tblcontactnumbertypes';
-    $q1q = mysql_query($q1s);
+    $qs = $dbh->prepare($q1s);
+    $res = $qs->execute();
     
-    while ($q1r = mysql_fetch_object($q1q))
+    while ($r = $res->fetchRow())
     {
-        $types[$q1r->ContactNumberTypeID] = $q1r->ContactNumberType;
+        $types[$r->ContactNumberTypeID] = $r->ContactNumberType;
     }
     
-    $q2s = 'SELECT ContactID, ContactFirstName, ContactLastName, ContactNumber, ContactNumberTypeID, ' .
-           'ContactNumberType, ContactEmail, RecordDate FROM tblcustomercontacts ' .
-           'LEFT JOIN tblcontactnumbertypes USING (ContactNumberTypeID) ' .
-           'WHERE RollupID=' . $RollupID;
-    $q2q = mysql_query($q2s);
+    $q2s = 'SELECT ContactID, ContactFirstName, ContactLastName, ContactNumber, ' .
+           'tblcustomercontacts.ContactNumberTypeID, ContactNumberType, ContactEmail, ' .
+           'RecordDate FROM tblcustomercontacts ' .
+           'LEFT JOIN tblcontactnumbertypes USING(ContactNumberTypeID) ' .
+           'WHERE RollupID=?';
+    xdebug_break();
+    $qs = $dbh->prepare($q2s);
+    $res = $qs->execute(array($RollupID));
 
-    while ($q2r = mysql_fetch_object($q2q))
+    while ($r = $res->fetchRow())
     {
-        $contacts[$q2r->ContactID] = $q2r;
+        $contacts[$r->ContactID] = $r;
     }
 
     return array('types' => $types,
@@ -161,9 +206,9 @@ function constructOptions($values, $needle = null)
     return $options;
 }
 
-if (isset($_REQUEST['profile']) && is_numeric($_REQUEST['profile']))
+if (isset($_GET['profile']) && is_numeric($_GET['profile']))
 {
-    $pStart = mysql_real_escape_string($_REQUEST['profile']);
+    $pStart = $_GET['profile'];
 }
 else
 {
@@ -172,53 +217,60 @@ else
 
 function getProfilesCount($RollupID)
 {
-    $q1s = 'SELECT COUNT(RollupID) AS CustomerCount FROM `tblprofiles` ' .
-           'WHERE RollupID=' . $RollupID;
-    $q1q = mysql_query($q1s);
-    $count = mysql_result($q1q, 0);
+    $dbh = MDB2::singleton();
+    $q1s = 'SELECT COUNT(RollupID) AS CustomerCount FROM tblprofiles ' .
+           'WHERE RollupID=?';
+    $qs = $dbh->prepare($q1s);
+    $res = $qs->execute(array($RollupID));
+    
+    $count = $res->fetchColumn();
 
     return $count;
 }
 
 function getCustomerProfile($ConsultantID, $RollupID, $pStart = 0)
 {
-    if (isset($_POST['deleteP']) && isset($_POST['ProfileID']) && isAdmin())
-    {
-        $qs = 'DELETE FROM tblprofiles WHERE ProfileID=' . mysql_real_escape_string($_POST['ProfileID']);
-        $qq = mysql_query($qs);
+    $dbh = MDB2::singleton();
 
-        if ($qq == false)
+    if (isset($_POST['deleteP']) && isset($_POST['RollupID']) && isAdmin())
+    {
+        $qs = 'DELETE FROM tblprofiles WHERE RollupID=' . mysql_real_escape_string($_POST['RollupID']);
+//        $qs = $dbh->prepare($qs);
+        print $qs;
+        exit;
+        if ($qq === false)
         {
-            header("Location: http://" . $_SERVER['HTTP_HOST'] . '/customers.php?customer_err=update+failed&reason=Profile+could+not+be+deleted' . "&$params");
+//            header("Location: http://" . $_SERVER['HTTP_HOST'] . '/customers.php?customer_err=update+failed&reason=Profile+could+not+be+deleted' . "&$params");
         }
-        else
-        {
-            header("Location: http://" . $_SERVER['HTTP_HOST'] . '/customers.php?customer_err=update+failed&reason=Profile+deleted' . "&$params");
-        }
+
+//        header("Location: http://" . $_SERVER['HTTP_HOST'] . '/customers.php?customer_err=update+failed&reason=Profile+deleted' . "&$params");
     }
 
     if (!isset($_GET['new']))
     {
-        $q1s = 'SELECT *, UserName AS CreatorUsername FROM tblprofiles JOIN tblconsultants ON ConsultantID=CreatorID WHERE RollupID=' . mysql_real_escape_string($RollupID) .
-               ' LIMIT ' . $pStart . ', 1';
-        $q1q = mysql_query($q1s);
+        $q1s = 'SELECT *, UserName AS CreatorUsername FROM tblprofiles ' .
+               'JOIN tblconsultants ON ConsultantID=CreatorID WHERE RollupID=? ' .
+               'LIMIT ' . $pStart . ', 1';
+        $qs = $dbh->prepare($q1s);
+        $res = $qs->execute(array($RollupID));
+
+        /* There should only ever be 1 profile per customer. */
+        $profile = $res->fetchRow();
         
-        $profile = new stdClass;
-        if (mysql_numrows($q1q) > 0)
-        {
-            /* There should only ever be 1 profile per customer. */
-            $profile = mysql_fetch_object($q1q);
-            
+        if (is_object($profile))
+        {            
             return $profile;
         }
     }    
 
     $_GET['new'] = true;
 
-    $q2s = 'SELECT UserName FROM tblconsultants WHERE ConsultantID=' . $ConsultantID;
-    $q2q = mysql_query($q2s);
-    $username = mysql_result($q2q, 0);
+    $q2s = 'SELECT UserName FROM tblconsultants WHERE ConsultantID=?';
+    $qs = $dbh->prepare($q2s);
+    $res = $qs->execute(array($ConsultantID));
+    $username = $res->fetchCol();
 
+    $profile = new stdClass;
     $profile->RollupID = $RollupID;
     $profile->CreationDate = 'null';
     $profile->CreatorID = $ConsultantID;
@@ -235,9 +287,9 @@ function getCustomerProfile($ConsultantID, $RollupID, $pStart = 0)
     return $profile;
 }
 
-if (isset($_REQUEST['note']) && is_numeric($_REQUEST['note']))
+if (isset($_GET['note']) && is_numeric($_GET['note']))
 {
-    $nStart = mysql_real_escape_string($_REQUEST['note']);
+    $nStart = mysql_real_escape_string($_GET['note']);
 }
 else
 {
@@ -246,72 +298,64 @@ else
 
 function getNotesCount($RollupID, $ConsultantID)
 {
+    $dbh = MDB2::singleton();
     $q1s = 'SELECT COUNT(RollupID) FROM tblconsultantnotes ' .
-           'WHERE RollupID=' . $RollupID . ' AND ConsultantID=' . $ConsultantID;
-    $q1q = mysql_query($q1s);
-    $count = mysql_result($q1q, 0);
+           'WHERE RollupID=? AND ConsultantID=?';
+    $qs = $dbh->prepare($q1s);
+    $res = $qs->execute(array($RollupID, $ConsultantID));
+    
+    $count = $res->fetchCol();
 
     return $count;    
 }
 
 function getConsultantNote($RollupID, $ConsultantID, $nStart = 0)
 {
-    if (isset($_POST['deleteN']) && isset($_POST['NoteID']) && isAdmin())
-    {
-        $qs = 'DELETE FROM tblconsultantnotes WHERE NoteID=' . mysql_real_escape_string($_POST['NoteID']);
-        $qq = mysql_query($qs);
-
-        if ($qq == false)
-        {
-            header("Location: http://" . $_SERVER['HTTP_HOST'] . '/customers.php?customer_err=update+failed&reason=Note+could+not+be+deleted' . "&$params");
-        }
-        else
-        {
-            header("Location: http://" . $_SERVER['HTTP_HOST'] . '/customers.php?customer_err=update+failed&reason=Note+deleted' . "&$params");
-        }
-    }
+    $dbh = MDB2::singleton();
 
     if (!isset($_GET['newN']))
     {
-        $q1s = 'SELECT *, UserName AS CreatorUsername FROM tblconsultantnotes ' .
+        $q1s = 'SELECT tblconsultantnotes.*, UserName AS CreatorUsername FROM tblconsultantnotes ' .
                'JOIN tblconsultants USING(ConsultantID) ' .
-               'WHERE RollupID=' . $RollupID . ' AND ConsultantID=' . $ConsultantID .
-               ' LIMIT ' . $nStart . ', 1';
-        $q1q = mysql_query($q1s);
+               'WHERE RollupID=? AND tblconsultantnotes.ConsultantID=? ' .
+               'LIMIT ' . $nStart . ', 1';
+        $qs = $dbh->prepare($q1s);
+        $res = $qs->execute(array($RollupID, $ConsultantID));
 
-        $note = new stdClass;
-        if (mysql_numrows($q1q) > 0)
+        /* There should only ever be 1 profile per query. */
+        $note = $res->fetch();
+        
+        if (is_array($note))
         {
-            /* There should only ever be 1 profile per query. */
-            $note = mysql_fetch_object($q1q);
-            
             return $note;
         }
-    }    
+    }
 
     $_GET['newN'] = true;
 
-    $q2s = 'SELECT UserName FROM tblconsultants WHERE ConsultantID=' . $ConsultantID;
-    $q2q = mysql_query($q2s);
-    $username = mysql_result($q2q, 0);
+    $q2s = 'SELECT UserName FROM tblconsultants WHERE ConsultantID=?';
+    $qs = $dbh->prepare($q2s);
+    $res = $qs->execute(array($ConsultantID));
+    $username = $res->fetchCol();
 
-    $note->RollupID = $RollupID;
-    $note->CreationDate = 'null';
-    $note->ConsultantID = $ConsultantID;
-    $note->Notes = '';
-    $note->CreatorUsername = $username;
+    $note = array();
+    $note[1] = $RollupID;
+    $note[5] = 'null';
+    $note[2] = $ConsultantID;
+    $note[3] = '';
+    $note[6] = $username;
 
     return $note;
 }
 
 $customerCount = getCustomersCount($ConsultantID);
-$r = getCustomerInformation($ConsultantID, $start);
-$accounts = getContractAccounts($r['customer']->RollupID);
-$contacts = getCustomerContacts($r['customer']->RollupID);
-$profileCount = getProfilesCount($r['customer']->RollupID);
-$profile = getCustomerProfile($ConsultantID, $r['customer']->RollupID, $pStart);
-$noteCount = getNotesCount($r['customer']->RollupID, $ConsultantID);
-$note = getConsultantNote($r['customer']->RollupID, $ConsultantID);
+$customer = getCustomerInformation($ConsultantID, $start);
+$accounts = getContractAccounts($customer->rollupid);
+$contacts = getCustomerContacts($customer->rollupid);
+$profileCount = getProfilesCount($customer->rollupid);
+$profile = getCustomerProfile($ConsultantID, $customer->rollupid, $pStart);
+$noteCount = getNotesCount($customer->rollupid, $ConsultantID);
+$note = getConsultantNote($customer->rollupid, $ConsultantID);
 ?>
 <html>
     <head>
@@ -341,7 +385,7 @@ if (isset($_GET['customer_err']))
 {
 ?>
             <div class="err_msg">
-                <?php echo $_GET['reason']; ?>
+                <?php echo $r['err_msg']; ?>
             </div>
 <?php
 }
@@ -365,43 +409,43 @@ if ($start < $customerCount - 1)
                 <input type="hidden" name="record" value="<?php echo $start; ?>"/>
                 <input type="hidden" name="profile" value="<?php echo $pStart; ?>"/>
                 <input type="hidden" name="note" value="<?php echo $nStart; ?>"/>
-                <input type="hidden" name="RollupID" value="<?php echo $r['customer']->RollupID; ?>"/>
+                <input type="hidden" name="RollupID" value="<?php echo $customer->rollupid; ?>"/>
                 <table>
                     <tr>
                         <th>Rollup ID:</th>
-                        <td style="width: 50%"><?php echo $r['customer']->RollupID; ?></td>
+                        <td style="width: 50%"><?php echo $customer->rollupid; ?></td>
                     </tr>
                     <tr>
                         <th>Customer:</th>
-                        <td><input type="text" name="CustomerName" value="<?php echo $r['customer']->CustomerName; ?>"/></td>
+                        <td><input type="text" name="CustomerName" value="<?php echo $r['customer'][1]; ?>"/></td>
                     </tr>
                     <tr>
                         <th>Address:</th>
-                        <td><input type="text" name="Address" value="<?php echo $r['customer']->Address; ?>"/></td>
+                        <td><input type="text" name="Address" value="<?php echo $r['customer'][2]; ?>"/></td>
                     </tr>
                     <tr>
                         <th>City:</th>
-                        <td><input type="text" name="City" value="<?php echo $r['customer']->City; ?>"/></td>
+                        <td><input type="text" name="City" value="<?php echo $r['customer'][3]; ?>"/></td>
                     </tr>
                     <tr>
                         <th>State:</th>
-                        <td><input type="text" name="State" value="<?php echo $r['customer']->State; ?>"/></td>
+                        <td><input type="text" name="State" value="<?php echo $r['customer'][4]; ?>"/></td>
                     </tr>
                     <tr>
                         <th>Zip code:</th>
-                        <td><input type="text" name="Zipcode" value="<?php echo $r['customer']->Zipcode; ?>"/></td>
+                        <td><input type="text" name="Zipcode" value="<?php echo $r['customer'][5]; ?>"/></td>
                     </tr>
                     <tr>
                         <th>Zip 4:</th>
-                        <td><input type="text" name="Zip4" value="<?php echo $r['customer']->Zip4; ?>"/></td>
+                        <td><input type="text" name="Zip4" value="<?php echo $r['customer'][6]; ?>"/></td>
                     </tr>
                     <tr>
                         <th>Total # by Zip:</th>
-                        <td><input type="text" name="NumberOfCompanyByZip" value="<?php echo $r['customer']->NumberOfCompanyByZip; ?>"/></td>
+                        <td><input type="text" name="NumberOfCompanyByZip" value="<?php echo $r['customer'][7]; ?>"/></td>
                     </tr>
                     <tr>
                         <th>Meter Qty:</th>
-                        <td><input type="text" name="Meters" value="<?php echo $r['customer']->Meters; ?>"/></td>
+                        <td><input type="text" name="Meters" value="<?php echo $r['customer'][8]; ?>"/></td>
                     </tr>
                     <tr>
                         <th>LPBID:</th>
@@ -413,7 +457,7 @@ if (!isAdmin())
 }
 ?>                        
                             <select name="LPBID"<?php echo $disabled2; ?>>
-                                <?php print constructOptions($r['LPBIDs'], $r['customer']->LPBID); ?>                            
+                                <?php print constructOptions($r['LPBIDs'], $r['customer'][9]); ?>                            
                             </select>
                         </td>                    
                     </tr>
@@ -421,15 +465,15 @@ if (!isAdmin())
                         <th>Segment:</th>
                         <td>
                             <select name="Segment"<?php echo $disabled2; ?>>
-                                <?php print constructOptions($r['segments'], $r['customer']->Segment); ?>
+                                <?php print constructOptions($r['segments'], $r['customer'][10]); ?>
                             </select>
                         </td>                    
                     </tr>
                     <tr>
-                        <th>Territory:</th>
+                        <th>Territory: <?php echo $r['customer'][11]; ?></th>
                         <td>
                             <select name="Territory"<?php echo $disabled2; ?>>
-                                <?php print constructOptions($r['territories'], $r['customer']->Territory); ?>
+                                <?php print constructOptions($r['territories'], $r['customer'][11]); ?>
                             </select>
                         </td>                    
                     </tr>
@@ -458,24 +502,7 @@ if (isset($_GET['accounts_err']))
 <?php
 foreach ($accounts[0] as $key => $account)
 {
-    print '<tr>';
-    print '<td>(' . ($key+1).')</td><td>'  . $account . '</td>';
-    
-    if (isAdmin())
-    {
-        $params = sprintf('record=%d&profile=%d&note=%d&deleteCA=true&ContractAccount=%s',
-                          $start,
-                          $pStart,
-                          $nStart,
-                          $account);
-?>
-        <td>
-            <a href="customers.php?<?php echo $params; ?>"><strong>delete</strong></a>
-        </td>
-<?php
-    }
-    
-    print '</tr>';
+    print '<tr><td>(' . ($key+1).')</td><td>'  . $account . '</td></tr>' . "\n";
 }
 ?>
                 <tr>
@@ -483,7 +510,7 @@ foreach ($accounts[0] as $key => $account)
                         <input type="hidden" name="record" value="<?php echo $start; ?>"/>
                         <input type="hidden" name="profile" value="<?php echo $pStart; ?>"/>
                         <input type="hidden" name="note" value="<?php echo $nStart; ?>"/>
-                        <input type="hidden" name="RollupNumber" value="<?php echo $r['customer']->RollupID; ?>"/>
+                        <input type="hidden" name="RollupNumber" value="<?php echo $customer->rollupid; ?>"/>
                         <td>
                             <input type="text" name="ContractAccount"/>
                         </td>
@@ -539,7 +566,7 @@ if (!is_null($contacts['contacts']))
                         <input type="hidden" name="record" value="<?php echo $start; ?>"/>
                         <input type="hidden" name="profile" value="<?php echo $pStart; ?>"/>
                         <input type="hidden" name="note" value="<?php echo $nStart; ?>"/>
-                        <input type="hidden" name="RollupID" value="<?php echo $r['customer']->RollupID; ?>"/>
+                        <input type="hidden" name="RollupID" value="<?php echo $customer->rollupid; ?>"/>
                         <td><input type="text" name="ContactFirstName"/></td>
                         <td><input type="text" name="ContactLastName"/></td>
                         <td><input type="text" name="ContactNumber"/></td>
@@ -567,14 +594,14 @@ else
 {
     if ($pStart > 0)
     {
-        print '<a href="?record=' . $_REQUEST['record'] . '&profile=' . ($pStart - 1) . '&note=' . $_REQUEST['note'] . '">&lt;</a>';
+        print '<a href="?record=' . $_GET['record'] . '&profile=' . ($pStart - 1) . '&note=' . $_GET['note'] . '">&lt;</a>';
     }
     ?>
                 Profile <?php echo ($pStart + 1); ?> of <?php echo $profileCount; ?> 
     <?php
     if ($pStart < $profileCount - 1)
     {
-        print '<a href="?record=' . $_REQUEST['record'] . '&profile=' . ($pStart + 1) . '&note=' . $_REQUEST['note'] . '">&gt;</a>';
+        print '<a href="?record=' . $_GET['record'] . '&profile=' . ($pStart + 1) . '&note=' . $_GET['note'] . '">&gt;</a>';
     }
 }
 ?>
@@ -643,25 +670,25 @@ if (!isset($_GET['new']))
                         <textarea name="Question6"><?php echo $profile->Question6; ?></textarea>
                     </li>
                 </ul>
-                <input type="submit" class="addEditRecord" value="<?php echo isset($_GET['new']) ? 'Add' : 'Edit'; ?> Profile"/>
-            </form>
 <?php
-    if (!isset($_GET['new']) && isAdmin())
+    if (isAdmin())
     {
 ?>
-            <div class="deleteRecord">
-                <form method="post" action="customers.php">
+            <div id="delProfile" style="float: right">
+                <form method="get" action="customers.php">
                     <input type="hidden" name="record" value="<?php echo $start; ?>"/>
                     <input type="hidden" name="profile" value="<?php echo $pStart; ?>"/>
                     <input type="hidden" name="note" value="<?php echo $nStart; ?>"/>
                     <input type="hidden" name="deleteP" value="true"/>
-                    <input type="hidden" name="ProfileID" value="<?php echo $profile->ProfileID; ?>"/>
+                    <input type="hidden" name="RollupID" value="<?php echo $profile->ProfileID; ?>"/>
                     <input type="submit" value="Delete Profile"/>
                 </form>
             </div>
 <?php
     }
 ?>
+                <input type="submit" value="<?php echo isset($_GET['new']) ? 'Add' : 'Edit'; ?> Profile"/>
+            </form>
         </div>
         <div id="consultant_notes">
             <div class="summary">
@@ -674,14 +701,14 @@ else
 {
     if ($nStart > 0)
     {
-        print '<a href="?record=' . $_REQUEST['record'] . '&profile=' . $_REQUEST['profile'] . '&note=' . ($nStart - 1) . '">&lt;</a>';
+        print '<a href="?record=' . $_GET['record'] . '&profile=' . $_GET['profile'] . '&note=' . ($nStart - 1) . '">&lt;</a>';
     }
 ?>
                 Note <?php echo ($nStart + 1); ?> of <?php echo $noteCount; ?> 
 <?php
     if ($nStart < $noteCount - 1)
     {
-        print '<a href="?record=' . $_REQUEST['record'] . '&profile=' . $_REQUEST['profile'] . '&note=' . ($nStart + 1) . '">&gt;</a>';
+        print '<a href="?record=' . $_GET['record'] . '&profile=' . $_GET['profile'] . '&note=' . ($nStart + 1) . '">&gt;</a>';
     }
 }
 ?>
@@ -706,43 +733,26 @@ if (!isset($_GET['newN']))
                 <input type="hidden" name="record" value="<?php echo $start; ?>"/>
                 <input type="hidden" name="profile" value="<?php echo $pStart; ?>"/>
                 <input type="hidden" name="note" value="<?php echo $nStart; ?>"/>
-                <input type="hidden" name="NoteID" value="<?php echo $note->NoteID; ?>"/>
-                <input type="hidden" name="RollupID" value="<?php echo $note->RollupID; ?>"/>
-                <input type="hidden" name="ConsultantID" value="<?php echo $note->ConsultantID; ?>"/>
-                <input type="hidden" name="CreationDate" value="<?php echo $note->CreationDate; ?>"/>
+                <input type="hidden" name="NoteID" value="<?php echo $note[0]; ?>"/>
+                <input type="hidden" name="RollupID" value="<?php echo $note[1]; ?>"/>
+                <input type="hidden" name="ConsultantID" value="<?php echo $note[2]; ?>"/>
+                <input type="hidden" name="CreationDate" value="<?php echo $note[5] ?>"/>
                 <table>
                     <tr>
                         <th>Creator</th>
                         <th>Creation Date</th>
                     </tr>
                     <tr>
-                        <td><?php echo $note->CreatorUsername; ?></td>
-                        <td><?php echo $note->CreationDate; ?></td>
+                        <td><?php echo $note[6]; ?></td>
+                        <td><?php echo $note[5] ?></td>
                     </tr>
                 </table>
                 <p>
                     <div>Notes:</div>
-                    <textarea name="Notes"><?php echo $note->Notes; ?></textarea>
+                    <textarea name="Notes"><?php echo $note[3]; ?></textarea>
                 </p>
-                <input type="submit" class="addEditRecord" value="<?php echo isset($_GET['newN']) ? 'Add' : 'Edit'; ?> Note"/>
+                <input type="submit" value="<?php echo isset($_GET['newN']) ? 'Add' : 'Edit'; ?> Note"/>
             </form>
-<?php
-    if (!isset($_GET['newN']) && isAdmin())
-    {
-?>
-            <div class="deleteRecord">
-                <form method="post" action="customers.php">
-                    <input type="hidden" name="record" value="<?php echo $start; ?>"/>
-                    <input type="hidden" name="profile" value="<?php echo $pStart; ?>"/>
-                    <input type="hidden" name="note" value="<?php echo $nStart; ?>"/>
-                    <input type="hidden" name="deleteN" value="true"/>
-                    <input type="hidden" name="NoteID" value="<?php echo $note->NoteID; ?>"/>
-                    <input type="submit" value="Delete Note"/>
-                </form>
-            </div>
-<?php
-    }
-?>
         </div>
     </body>
-</html
+</html>

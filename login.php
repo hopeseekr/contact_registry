@@ -10,19 +10,16 @@ function login()
 {
     if (isset($_POST['username']))
     {
-        require_once('config.php');
-        $db = getDB();
-        
-        mysql_connect($db['server'], $db['user'], $db['pass']);
-        mysql_select_db($db['database']);
-        print mysql_error();
+        require_once('lib/db.php');
+
+        db_connect();
 
         $results = validateUser($_POST['username'], $_POST['password']);
 
         /* --- The user has been authenticated --- */
         if ($results != null)
         {
-            if ($results->Active == 0)
+            if (USER_AUTH == 'advanced' && $results->active == 0)
             {
                 print '<h2>Your account is not active.  Please contact your administrator.</h2>';
                 
@@ -32,21 +29,21 @@ function login()
             session_start();
     
             $_SESSION['username'] = $_POST['username'];
-            $_SESSION['ConsultantID'] = $results->ConsultantID;
-            $_SESSION['AccountTypeID'] = $results->AccountTypeID;
+            $_SESSION['ConsultantID'] = $results->consultantid;
+            $_SESSION['AccountTypeID'] = $results->accounttypeid;
             $_SESSION['ip'] = $_SERVER['REMOTE_ADDR'];
 
-            if ($results->PasswordExpires < time() || $results->Password == '')
+            if ((isset($results->password) && $results->password == '') || (USER_AUTH == 'advanced' && strtotime($results->passwordexpires) < time()))
             {
                 expiredPassword();
             }
     
-            if ($results->AccountTypeID == 2)
+            if ($results->accounttypeid == 2)
             {
                 header("Location: http://" . $_SERVER['HTTP_HOST'] . '/customers.php');
                 exit;
             }
-            else if ($results->AccountTypeID == 3)
+            else if ($results->accounttypeid == 3)
             {
                 $_SESSION['admin'] = true;
                 header("Location: http://" . $_SERVER['HTTP_HOST'] . '/admin/');
@@ -54,7 +51,7 @@ function login()
             }
             else
             {
-                trigger_error($_POST['username'] . ' has an invalid Account Type of ' . $results->AccountTypeID, E_USER_ERROR);
+                trigger_error($_POST['username'] . ' has an invalid Account Type of ' . $results->accounttypeid, E_USER_ERROR);
             }
         }
         else

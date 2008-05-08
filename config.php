@@ -1,10 +1,28 @@
 <?php
-function getDB()
+
+/* USER_AUTH modes:
+   - simple: plaintext password, no Active flag, no ExpirationDate flag
+   - advanced: encrypted password, Active flag, ExpirationDate flag
+*/
+
+define('USER_AUTH', 'simple');
+
+function getMySQLDBCreds()
 {
     return array('server' => 'localhost',
                  'user' => 'root',
                  'pass' => '',
                  'database' => 'sbconsultants');
+}
+
+/*function getDB()
+{
+    return getMySQLDBCreds();
+}*/
+
+function getSQLiteCreds()
+{
+    return '/var/www/blinds.com/htdocs/sbconsultants.sdb';
 }
 
 function constructParams()
@@ -43,28 +61,39 @@ function validateUser($user_in, $pass_in)
 {
     if ($pass_in != '')
     {
-        $pass_cond = 'Password=MD5("%s")';
+        $pass_cond = 'Password=?';
     }
     else
     {
         $pass_cond = 'Password IS NULL';
     }
 
-    $qs = sprintf('SELECT AccountTypeID, Password, ConsultantID, Active, UNIX_TIMESTAMP(PasswordExpires) PasswordExpires ' .
-                  'FROM tblconsultants WHERE UserName="%s" AND ' . $pass_cond,
-                  mysql_real_escape_string($user_in),
-                  mysql_real_escape_string($pass_in));
-    $qq = mysql_query($qs);
-    print mysql_error();
-    $results = mysql_fetch_object($qq);
+    $dbh = MDB2::singleton();
 
-    if (mysql_numrows($qq) > 0)
+    if (USER_AUTH == 'simple')
     {
-        /* --- The user has been validated --- */
-        return $results;
+        $qs = $dbh->prepare('SELECT AccountTypeID, Password, ConsultantID ' .
+                            'FROM tblConsultants WHERE UserName=? AND ' . $pass_cond);
+    }
+    else if (USER_AUTH == 'advanced')
+    {
+        $pass_in = md5($pass_in);
+        $qs = $dbh->prepare('SELECT AccountTypeID, Password, ConsultantID, Active, PasswordExpires ' .
+                            'FROM tblConsultants WHERE UserName=? AND ' . $pass_cond);
     }
 
-    return null;
+    $res = $qs->execute(array($user_in, $pass_in));
+    $results = $res->fetchRow();
+    
+    /* --- For security reasons, only keep the password if it is already NULL --- */
+
+    if ($results->password != '')
+    {
+        unset($results->password);
+    }
+
+    /* --- The user has been validated or NULL is returned --- */
+    return $results;
 }
 
 function printHeader($title_in)

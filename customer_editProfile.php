@@ -8,11 +8,9 @@ if (!isset($_POST['RollupID']) || !isset($_POST['CreatorID']))
 }
 //print '<pre>' . print_r($_POST, true) . '</pre>';
 require_once('config.php');
-$db = getDB();
 
-mysql_connect($db['server'], $db['user'], $db['pass']);
-mysql_select_db($db['database']);
-print mysql_error();
+require_once('lib/db.php');
+db_connect();
 
 $q1s = sprintf('UPDATE tblprofiles SET Called=%d, Visited=%d, ' .
                'Question1="%s", Question2="%s", Question3="%s", ' .
