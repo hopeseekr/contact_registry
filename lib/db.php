@@ -12,7 +12,15 @@ function db_connect()
         $_REQUEST['db'] = $_GET['db'];
     }
 
-    if (!isset($_REQUEST['db']) || $_REQUEST['db'] == 'mssql')
+    if (!isset($_REQUEST['db']) || $_REQUEST['db'] == 'mysql')
+    {
+        $db = getMySQLDBCreds();
+        $dsn = sprintf('mysql:host=%s;dbname=%s',
+                       $db['server'],
+                       $db['database']);
+        setcookie('db', 'mysql');
+    }
+    else if ($_REQUEST['db'] == 'mssql')
     {
         //$dsn = 'sybase:host=192.168.1.138,1433;dbname=sbconsultants20080503';
         $dsn = 'dblib:host=192.168.1.138;dbname=SBCustomers20080503';
@@ -23,14 +31,6 @@ function db_connect()
                      'password' => 'test2008',
                      'database' => 'SBCustomers20080503');
         setcookie('db', 'mssql');
-    }
-    else if ($_REQUEST['db'] == 'mysql')
-    {
-        $db = getMySQLDBCreds();
-        $dsn = sprintf('mysql:host=%s;dbname=%s',
-                       $db['server'],
-                       $db['database']);
-        setcookie('db', 'mysql');
     }
     else if ($_REQUEST['db'] == 'sqlite')
     {
