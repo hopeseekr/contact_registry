@@ -3,13 +3,13 @@
 ob_start();
 
 require_once('views/LoginView.inc');
-require_once('controllers/LoginController.inc');
+require_once('controllers/LoginManager.inc');
 
 $T = new LoginView('tpl/login.tpl');
 
 if (isset($_POST['username']))
 {    
-    $guard = LoginController::getInstance();
+    $guard = LoginManager::getInstance();
 
     /* --- Make sure we have a valid, active user with an uptodate password --- */
     try

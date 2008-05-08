@@ -4,9 +4,9 @@ define('LOGIN_BAD_CREDS', 2);
 define('LOGIN_INACTIVE', 3);
 define('LOGIN_PASSWORD_EXPIRED', 4);
 
-require_once('DatabaseController.inc');
+require_once('DatabaseManager.inc');
 
-class LoginController extends DatabaseController
+class LoginManager extends DatabaseController
 {
     private static $instance;
     private $consultant;
@@ -15,7 +15,7 @@ class LoginController extends DatabaseController
     {
         if (!isset(self::$instance))
         {
-            self::$instance = new LoginController;
+            self::$instance = new LoginManager;
         }
 
         return self::$instance;
