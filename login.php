@@ -3,7 +3,7 @@
 ob_start();
 
 require_once('views/LoginView.inc');
-require_once('controllers/LoginManager.inc');
+require_once('managers/LoginManager.inc');
 
 $T = new LoginView('tpl/login.tpl');
 

@@ -6,7 +6,7 @@ define('LOGIN_PASSWORD_EXPIRED', 4);
 
 require_once('DatabaseManager.inc');
 
-class LoginManager extends DatabaseController
+class LoginManager extends DatabaseManager
 {
     private static $instance;
     private $consultant;
