@@ -5,7 +5,8 @@
    - advanced: encrypted password, Active flag, ExpirationDate flag
 */
 
-define('USER_AUTH', 'simple');
+//define('USER_AUTH', 'simple');
+define('USER_AUTH', 'advanced');
 
 function getMySQLDBCreds()
 {

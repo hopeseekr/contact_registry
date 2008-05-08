@@ -1,3 +1,4 @@
+div#errors { color: red; }
 div#warnings { border: 1px dashed black; padding: 10px; }
 table#login { border: 0; }
 table#login td input { width: 200px; }
