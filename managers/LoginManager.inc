@@ -6,10 +6,15 @@ define('LOGIN_PASSWORD_EXPIRED', 4);
 
 require_once('DatabaseManager.inc');
 
-class LoginManager extends DatabaseManager
+class LoginManager
 {
     private static $instance;
     private $consultant;
+
+    private function __construct()
+    {
+        DatabaseManager::init();        
+    }
     
     public static function getInstance()
     {
@@ -40,8 +45,6 @@ class LoginManager extends DatabaseManager
             $pass_cond = 'Password IS NULL';
         }
     
-        $dbh = $this->dbh;
-    
         if (USER_AUTH == 'simple')
         {
             $qs = 'SELECT AccountTypeID, Password, ConsultantID ' .
@@ -53,12 +56,9 @@ class LoginManager extends DatabaseManager
             $qs = 'SELECT AccountTypeID, Password, ConsultantID, Active, PasswordExpires ' .
                   'FROM Consultants WHERE UserName=? AND ' . $pass_cond;
         }
-    
-        $query = $dbh->prepare($qs);
-        $query->execute(array($user, $pass));
         
-        $results = $query->fetchObject();
-        
+        $results = DatabaseManager::fetchObject($qs, array($user, $pass));
+
         if ($results === false)
         {
             throw new Exception('Invalid login credentials.', LOGIN_BAD_CREDS);

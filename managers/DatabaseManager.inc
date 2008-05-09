@@ -4,23 +4,56 @@ require_once('lib/db.php');
 class DatabaseManager
 {
     private static $instance;
-    protected $dbh;
-    public $id;
+    private static $dbh;
     
     protected function __construct()
     {
-        $this->id = rand(5, 2000); 
-        $this->dbh = db_connect();
+        self::$dbh = db_connect();
     }
     
-    public static function getInstance()
+    public static function init()
     {
         if (!isset(self::$instance))
         {
-            self::$instance = new LoginManager;
+            self::$instance = new DatabaseManager;
         }
+    }
+    
+    /* $sql is either a plaintext SQL query or an array (part1, part2, ...) */
+    private static function prep($sql_in, $params_in)
+    {
+        $sql = $sql_in;
+        if (is_array($sql))
+        {
+            $sql = join(' ', $sql_in);
+        }
+        
+        $query = self::$dbh->prepare($sql);
+        $query->execute($params_in);
 
-        return self::$instance;
+        if ($query === FALSE)
+        {
+            throw new Exception('Query was not completed successfully: ' . $sql);
+        }
+        
+        return $query;
+    }
+    
+    public static function fetchColumn($sql_in, $params_in = null)
+    {
+        $query = self::prep($sql_in, $params_in);
+        $result = $query->fetchColumn();
+
+        return $result;
+    }
+    
+    public static function fetchObject($sql_in, $params_in = null)
+    {
+        $query = self::prep($sql_in, $params_in);
+        $results = $query->fetchObject();
+
+        return $results;
     }
 }
+
 ?>
