@@ -87,12 +87,6 @@ if (!defined('MIN_PASSWORD_SIZE'))
 
 function isAdmin()
 {
-    if (isset($_SESSION['admin']) && $_SESSION['admin'] == 1
-        && $_SESSION['AccountTypeID'] == 3)
-    {
-        return true;
-    }
-    
-    return false;
+    trigger_error('Use UserManager::isAdmin() instead.', E_USER_WARNING);
 }
 ?>
