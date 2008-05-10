@@ -5,13 +5,8 @@ session_start();
 ob_start();
 
 require_once('views/CustomerView.inc');
-require_once('managers/CustomerManager.inc');
 
 $T = new CustomerView('tpl/customers.tpl');
-$surveyor = CustomerManager::getInstance();
-$count = $surveyor->getCustomerCount();
-
-$T->set(array('customerCount' => $count));
 
 echo $T->parse();
 
@@ -34,106 +29,6 @@ if (isset($_GET['record']) && is_numeric($_GET['record']))
 else
 {
     $start = 0;
-}
-
-function getCustomersCount($ConsultantID)
-{
-    if (UserManager::isAdmin() == true)
-    {
-        $q1s = 'SELECT COUNT(Customers.RollupID) AS CustomerCount FROM Customers';
-    }
-    else
-    {
-        $q1s = 'SELECT COUNT(Customers.RollupID) AS CustomerCount ' .
-               'FROM AllocationLog INNER JOIN Customers ON AllocationLog.RollupID = Customers.RollupID ' .
-               'WHERE ConsultantID=?';
-    }
-
-    $dbh = $GLOBALS['dbh'];
-    $qs = $dbh->prepare($q1s);
-    $qs->execute(array($ConsultantID));
-
-    $count = $qs->fetchColumn($q1q);
-    
-    return $count;
-}
-
-function getCustomerInformation($ConsultantID, $start = 0)
-{
-    if (isset($_GET['customer_err']) && $_GET['accounts_err'] == 'update failed')
-    {
-        $err_msg = 'Update of Customer failed: ' . $_GET['reason'] . '.';
-    }
-
-    $dbh = $GLOBALS['dbh'];
-
-    if (UserManager::isAdmin() == true)
-    {
-        $q1s = 'SELECT Customers.* FROM Customers LIMIT ' . $start . ', 1';
-        $Segments = array();
-        $q2s = 'SELECT SegmentID, SegmentName FROM SegmentTypes';
-        $qs = $dbh->query($q2s);
-    
-        while ($r = $qs->fetchObject())
-        {
-            $Segments[$r->SegmentID] = $r->SegmentName;
-        }
-        
-        $LPBIDs = array();
-        $q3s = 'SELECT LPBID, LPBType FROM LPBTypes';
-        $qs = $dbh->prepare($q3s);
-        $qs->execute();
-    
-        while ($r = $qs->fetchObject())
-        {
-            $LPBIDs[$r->LPBID] = $r->LPBType;
-        }
-        
-        $Territories = array();
-        $q4s = 'SELECT TerritoryID, TerritoryName FROM TerritoryTypes';
-        $qs = $dbh->prepare($q4s);
-        $qs->execute();
-    
-        while ($r = $qs->fetchObject())
-        {
-            $Territories[$r->TerritoryID] = $r->TerritoryName;
-        }
-    
-        $qs = $dbh->prepare($q1s);
-        $qs->execute(array($ConsultantID));
-        $customers = $qs->fetchObject();
-    }
-    else
-    {
-        $q1s = 'SELECT Customers.*, ' .
-               'SegmentTypes.SegmentName, TerritoryTypes.TerritoryName, LPBTypes.LPBType ' .
-               'FROM AllocationLog ' .
-               'INNER JOIN Customers ON AllocationLog.RollupID = Customers.RollupID ' .
-               'LEFT JOIN SegmentTypes ON SegmentTypes.SegmentID = Customers.Segment ' .
-               'LEFT JOIN TerritoryTypes ON TerritoryTypes.TerritoryID = Customers.Territory ' .
-               'LEFT JOIN LPBTypes ON LPBTypes.LPBID = Customers.LPBID ' .
-               'WHERE ConsultantID=1 ORDER BY Customers.RollupID LIMIT ' . $start . ', 1';
-
-        $qs = $dbh->prepare($q1s);
-        $qs->execute(array($ConsultantID));
-        $customers = $qs->fetchObject();
-    
-        $Segments = array($customers->Segment => $customers->SegmentName);
-        $Territories = array($customers->Territory => $customers->TerritoryName);
-        $LPBIDs = array($customers->LPBID => $customers->LPBType);
-
-        unset($customers->SegmentName);
-        unset($customers->TerritoryName);
-        unset($customers->LPBType);
-    }
-
-    /* --- Reformat $customers --- */
-    $customers->Segments = $Segments;
-    $customers->Territories = $Territories;
-    $customers->LPBTypes= $LPBIDs;
-
-    return array('customer' => $customers,
-                 'err_msg' => $err_msg);
 }
 
 /* --- Due to a quirk in DB design, RollupID is called RollupNumber in ContractAccounts --- */

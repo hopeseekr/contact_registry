@@ -54,6 +54,14 @@ class DatabaseManager
 
         return $results;
     }
+
+    public static function fetchArray($sql_in, $params_in = null)
+    {
+        $query = self::prep($sql_in, $params_in);
+        $results = $query->fetch(PDO::FETCH_ASSOC);
+
+        return $results;
+    }
 }
 
 ?>
