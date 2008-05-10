@@ -2,7 +2,7 @@
 
 // Page créé par Shepard [Fabian Pijcke] <Shepard8@laposte.net>
 // Arno Esterhuizen <arno.esterhuizen@gmail.com>
-// et Romain Bourdon <romain@anaska.com>
+// et Romain Bourdon <romain@anaska.com>  
 //  
 // icônes par Mark James <http://www.famfamfam.com/lab/icons/silk/>
 

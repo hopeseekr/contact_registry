@@ -2,10 +2,11 @@
 
 ob_start();
 
-require_once('views/LoginView.inc');
+require_once('views/ViewFactory.inc');
 require_once('managers/LoginManager.inc');
 
-$T = new LoginView('tpl/login.tpl');
+$viewFactory = new ViewFactory('blitz');
+$T = $viewFactory->createView('Login');
 
 if (isset($_POST['username']))
 {    

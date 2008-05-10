@@ -3,13 +3,20 @@ require_once('managers/CustomerManager.inc');
 
 class CustomerView extends Blitz
 {
-    public function __construct($tmpl_name)
+    public function __construct()
     {
-        $status = parent::Blitz($tmpl_name);
+        $tmpl_file = dirname(__FILE__) . '/../tpl/customers.tpl';
+
+        if (!file_exists($tmpl_file))
+        {
+            throw new Exception('Cannot find Blitz template file: ' . $tmpl_file);
+        }
+
+        $status = parent::Blitz($tmpl_file);
         $this->registerUser();
         $this->set(array('title' => 'Customers'));
         $this->handleRawHTML();
-        
+
         $record = 1;
         if (isset($_GET['record']) && is_numeric($_GET['record']))
         {
@@ -25,14 +32,14 @@ class CustomerView extends Blitz
         {
             $this->block('prevRecord', array('id' => $record - 1));
         }
-        
+
         if ($record < $count)
         {
             $this->block('nextRecord', array('id' => $record + 1,
                                              'customerCount' => $count));
         }
         $customer['LPBTypes'][2] = 'LPB2';
-        
+
         /* --- Populate lists --- */
 //        $this->block('customer/LPBIDs', array('id' => 5));
         $this->set(array('record' => $record,
@@ -45,15 +52,15 @@ class CustomerView extends Blitz
             $params = array('id' => $id, 'type' => $type);
 
             $this->block('customer/LPBIDs/LPB', $params);
-            
+
             if ($id == $customer['LPBID'])
             {
                 $this->block('customer/LPBIDs/LPB/selected');
             }
         }
-        
+
 //        $this->block('debug', array('print_r' => print_r($_SESSION, true)));
-        
+
         if (isset($_GET['customer_err']) && $_GET['accounts_err'] == 'update failed')
         {
             $this->block('genericError', array($_GET['reason']));
@@ -61,7 +68,7 @@ class CustomerView extends Blitz
 
         return $status;
     }
-    
+
     public function registerUser()
     {
         $user = '';
@@ -73,7 +80,7 @@ class CustomerView extends Blitz
         $this->set(array('username' => $user));
         return $user;
     }
-    
+
     public function handleRawHTML()
     {
         /* --- See if there is non-templated output. --- */
@@ -87,7 +94,7 @@ class CustomerView extends Blitz
             $this->block('rawHTML', array('rawHTML' => $rawHTML));
         }
     }
-    
+
     public function handleChangePassword()
     {
         $_SESSION['expiredPassword'] = true;
@@ -106,7 +113,7 @@ class CustomerView extends Blitz
         {
             throw new Exception('AccountTypeID not passed in the _SESSION array.');
         }
-        
+
         $accountTypeID = $_SESSION['AccountTypeID'];
 
         if ($accountTypeID == 2)
