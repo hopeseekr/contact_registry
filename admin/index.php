@@ -8,7 +8,7 @@ if (!isset($_SESSION['admin']) || !validateSession())
 }
 else if (!isAdmin())
 {
-print '<pre>' . print_r($_SESSION, true) . '</pre>';    
+print '<pre>' . print_r($_SESSION, true) . '</pre>';
     logout();
     trigger_error('You are not classified as an Administrator.', E_USER_ERROR);
 }
@@ -36,7 +36,7 @@ print '<pre>' . print_r($_SESSION, true) . '</pre>';
 
 ?>
         <div style="background: #0000FF; padding: 6px 10px 6px 10px; width: 10em">
-            <a href="../customers.php" style="color: yellow">View customers profiles</a>
+            <a href="../page.php?view=customers" style="color: yellow">View customers profiles</a>
         </div>
     </body>
 </html>

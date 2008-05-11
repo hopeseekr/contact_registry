@@ -6,12 +6,54 @@ ob_start();
 require_once('config.php');
 require_once('views/ViewFactory.inc');
 
-$viewFactory = new ViewFactory('blitz');
+$engines = array('blitz' => true,
+                 'xslt' => true);
+$engine = 'blitz';
+if (isset($_GET['engine']))
+{
+    if (!isset($engines[$_GET['engine']]) || $engines[$_GET['engine']] === false)
+    {
+        throw new Exception('Unsupported engine.');
+    }
+
+    $engine = $_GET['engine'];
+}
+
+
+$viewFactory = new ViewFactory($engine);
 $T = $viewFactory->createView('customer');
 //require_once('template_engines/blitz/views/CustomerView.inc');
 
 echo $T->parse();
 exit;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 if (!isset($_SESSION['ConsultantID']) || !validateSession())
 {
