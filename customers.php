@@ -1,16 +1,14 @@
 <?php
-require_once('config.php');         // Needed for validateSession() and getDB()
 session_start();
 
 ob_start();
 
+require_once('config.php');
 require_once('views/ViewFactory.inc');
 
 $viewFactory = new ViewFactory('blitz');
 $T = $viewFactory->createView('customer');
 //require_once('template_engines/blitz/views/CustomerView.inc');
-
-$T = new CustomerView();
 
 echo $T->parse();
 exit;
