@@ -6,10 +6,10 @@ require_once('views/ViewFactory.inc');
 require_once('managers/LoginManager.inc');
 
 $viewFactory = new ViewFactory('blitz');
-$T = $viewFactory->createView('Login');
+$T = $viewFactory->createView('login');
 
 if (isset($_POST['username']))
-{    
+{
     $guard = LoginManager::getInstance();
 
     /* --- Make sure we have a valid, active user with an uptodate password --- */

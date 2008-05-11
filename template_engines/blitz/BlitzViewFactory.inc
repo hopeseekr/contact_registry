@@ -2,25 +2,27 @@
 
 class BlitzViewFactory extends ViewFactory
 {
-    public function __construct()
+    public function __construct($params = null)
     {
+        $this->params = $params;
+
         parent::__construct('blitz');
     }
 
     public function createView($view)
     {
-        $class_name = $view . 'View';
-        $class_file = dirname(__FILE__) . '/views/' . $class_name . '.inc';
-
-        if (!file_exists($class_file))
+        if (!property_exists($this->params->views, $view))
         {
-            throw new Exception('Blitz ' . $class_name . ' implementation was not found: ' . $class_file);
+            throw new Exception('Cannot find Blitz configuration for view <em>' . $view . '</em>');
         }
+
+        $class_name = $this->params->views->$view->class;
+        $class_file = dirname(__FILE__) . '/views/' . $class_name . '.inc';
 
         require_once($class_file);
 
-        $blitzView = new $class_name();
-        
+        $blitzView = new $class_name($this->params->views->$view->template);
+
         return $blitzView;
     }
 }
