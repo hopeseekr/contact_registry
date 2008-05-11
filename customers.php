@@ -7,8 +7,8 @@ ob_start();
 require_once('views/ViewFactory.inc');
 
 $viewFactory = new ViewFactory('blitz');
-//$T = $viewFactory->createView('Customer');
-require_once('template_engines/blitz/views/CustomerView.inc');
+$T = $viewFactory->createView('customer');
+//require_once('template_engines/blitz/views/CustomerView.inc');
 
 $T = new CustomerView();
 
@@ -48,12 +48,12 @@ function getContractAccounts($RollupID)
     $qs = $dbh->prepare($q1s);
     $qs->execute(array($RollupID));
     $accounts = array();
-    
+
     while ($r = $qs->fetchObject())
     {
         $accounts[] = $r->ContractAccount;
     }
-    
+
     return array($accounts, $err_msg);
 }
 
@@ -63,12 +63,12 @@ function getCustomerContacts($RollupID)
     $q1s = 'SELECT ContactNumberTypeID, ContactNumberType FROM ContactNumberTypes';
     $qs = $dbh->prepare($q1s);
     $qs->execute();
-    
+
     while ($r = $qs->fetchObject())
     {
         $types[$r->ContactNumberTypeID] = $r->ContactNumberType;
     }
-    
+
     $q2s = 'SELECT ContactID, ContactFirstName, ContactLastName, ContactNumber, ' .
            'CustomerContacts.ContactNumberTypeID, ContactNumberType, ContactEmail, ' .
            'RecordDate FROM CustomerContacts ' .
@@ -94,7 +94,7 @@ function constructOptions($values, $needle = null)
         if ($id == $needle) { $sel = " selected=\"selected\""; } else { $sel = ""; }
         $options .= sprintf('<option value="%d"%s>%s</option>' . "\n", $id, $sel, $value);
     }
-    
+
     return $options;
 }
 
@@ -114,7 +114,7 @@ function getProfilesCount($RollupID)
            'WHERE RollupID=?';
     $qs = $dbh->prepare($q1s);
     $qs->execute(array($RollupID));
-    
+
     $count = $qs->fetchColumn();
 
     return $count;
@@ -148,12 +148,12 @@ function getCustomerProfile($ConsultantID, $RollupID, $pStart = 0)
 
         /* There should only ever be 1 profile per customer. */
         $profile = $qs->fetchObject();
-        
+
         if (is_object($profile))
-        {            
+        {
             return $profile;
         }
-    }    
+    }
 
     $_GET['new'] = true;
 
@@ -197,7 +197,7 @@ function getNotesCount($RollupID, $ConsultantID)
     $qs->execute(array($RollupID, $ConsultantID));
     $count = $qs->fetchColumn();
 
-    return $count;    
+    return $count;
 }
 
 function getConsultantNote($RollupID, $ConsultantID, $nStart = 0)
@@ -215,7 +215,7 @@ function getConsultantNote($RollupID, $ConsultantID, $nStart = 0)
 
         /* There should only ever be 1 profile per query. */
         $note = $qs->fetchObject();
-        
+
         if (is_array($note))
         {
             return $note;

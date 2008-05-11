@@ -1,9 +1,9 @@
 <?php
 class LoginView extends Blitz
 {
-    public function __construct()
+    public function __construct($tmpl_file)
     {
-        $tmpl_file = dirname(__FILE__) . '/../tpl/login.tpl';
+        $tmpl_file = dirname(__FILE__) . '/../tpl/' . $tmpl_file;
 
         if (!file_exists($tmpl_file))
         {
@@ -14,10 +14,10 @@ class LoginView extends Blitz
         $this->registerUser();
         $this->set(array('title' => 'Consultant Login'));
         $this->handleRawHTML();
-        
+
         return $status;
     }
-    
+
     public function registerUser()
     {
         $user = '';
@@ -29,7 +29,7 @@ class LoginView extends Blitz
         $this->set(array('username' => $user));
         return $user;
     }
-    
+
     public function handleRawHTML()
     {
         /* --- See if there is non-templated output. --- */
@@ -43,7 +43,7 @@ class LoginView extends Blitz
             $this->block('rawHTML', array('rawHTML' => $rawHTML));
         }
     }
-    
+
     public function handleChangePassword()
     {
         $_SESSION['expiredPassword'] = true;
@@ -62,7 +62,7 @@ class LoginView extends Blitz
         {
             throw new Exception('AccountTypeID not passed in the _SESSION array.');
         }
-        
+
         $accountTypeID = $_SESSION['AccountTypeID'];
 
         if ($accountTypeID == 2)
