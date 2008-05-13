@@ -4,7 +4,7 @@
 		"dir": "blitz"
 	},
 	"views": {
-		"login" : { "class": "LoginView", "manager": "LoginManager", "template": "login.tpl" },
-		"customers" : { "class": "CustomerView", "manager": "CustomerManager", "template": "customers.tpl" }
+		"login" : { "name": "Login", "template": "login.tpl" },
+		"customers" : { "name": "Customer", "template": "customers.tpl" }
 	}
 }

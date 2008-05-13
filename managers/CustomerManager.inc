@@ -5,36 +5,42 @@ require_once('ComplexManagerInterface.inc');
 require_once('DatabaseManager.inc');
 require_once('UserManager.inc');
 
-class CustomerManagerFactory
-{
-    public static function Load()
-    {
-        if (UserManager::isAdmin() === false)
-        {
-            return NormalCustomerManager::getInstance();
-        }
-        else
-        {
-            return AdminCustomerManager::getInstance();
-        }
-    }
-}
 
 class CustomerManager extends DatabaseManager implements ComplexManagerInterface
 {
     private static $instance;
-    private $customerCount;
-    private $ConsultantID;
-    private $recordNumber;
-    private $customer;
+    protected $customerCount;
+    protected $ConsultantID;
+    protected $recordNumber;
+    protected $customer;
 
-    protected function __construct($record_in = null)
+    public function __construct($params)
     {
+        if (isset(self::$instance))
+        {
+            return self::$instance;
+        }
+
         DatabaseManager::init();
-        $this->ConsultantID = $_SESSION['ConsultantID'];
+        if (!isset($params['ConsultantID']) || $params['ConsultantID'] == null)
+        {
+            throw new Exception('ConsultantID was not passed to CustomerManager');
+        }
+        $this->ConsultantID = $ConsultantID;
         $this->recordNumber = $record_in;
+
+        if (UserManager::isAdmin() === false)
+        {
+            self::$instance = new NormalCustomerManager($params);
+        }
+        else
+        {
+            self::$instance = new AdminCustomerManager($params);
+        }
+
+        return self::$instance ;
     }
-    
+
     public static function load($record_in = null)
     {
         if (!isset(self::$instance))
@@ -51,7 +57,7 @@ class CustomerManager extends DatabaseManager implements ComplexManagerInterface
         {
             return $this->customerCount;
         }
-        
+
         if (UserManager::isAdmin() == true)
         {
             $q1s = 'SELECT COUNT(Customers.RollupID) AS CustomerCount FROM Customers';
@@ -68,7 +74,7 @@ class CustomerManager extends DatabaseManager implements ComplexManagerInterface
 
         return $count;
     }
-    
+
     public function fetchDetails()
     {
         if (UserManager::isAdmin() == true)
@@ -80,7 +86,7 @@ class CustomerManager extends DatabaseManager implements ComplexManagerInterface
             {
                 $Segments[$r->SegmentID] = $r->SegmentName;
             }
-            
+
             $LPBIDs = array();
             $q2s = 'SELECT LPBID, LPBType FROM LPBTypes';
 
@@ -88,7 +94,7 @@ class CustomerManager extends DatabaseManager implements ComplexManagerInterface
             {
                 $LPBIDs[$r->LPBID] = $r->LPBType;
             }
-            
+
             $Territories = array();
             $q3s = 'SELECT TerritoryID, TerritoryName FROM TerritoryTypes';
 
@@ -96,7 +102,7 @@ class CustomerManager extends DatabaseManager implements ComplexManagerInterface
             {
                 $Territories[$r->TerritoryID] = $r->TerritoryName;
             }
-        
+
             $q4s = 'SELECT Customers.* FROM Customers LIMIT ' . ($this->recordNumber - 1) . ', 1';
             $customer = DatabaseManager::fetchArray($q4s);
         }
@@ -116,12 +122,12 @@ class CustomerManager extends DatabaseManager implements ComplexManagerInterface
             $Segments = array($customer['Segment'] => $customer['SegmentName']);
             $Territories = array($customer['Territory'] => $customer['TerritoryName']);
             $LPBIDs = array($customer['LPBID'] => $customer['LPBType']);
-    
+
             unset($customer['SegmentName']);
             unset($customer['TerritoryName']);
             unset($customer['LPBType']);
         }
-    
+
         /* --- Reformat $customer --- */
         $customer['Segments'] = $Segments;
         $customer['Territories'] = $Territories;
@@ -133,8 +139,13 @@ class CustomerManager extends DatabaseManager implements ComplexManagerInterface
 
 class NormalCustomerManager extends CustomerManager implements ComplexManagerInterface
 {
+    public function __construct()
+    {
+        // If you don't have this, you'll get in a continuous loop!!
+    }
+
     public function fetchCount()
-    {    
+    {
         if (($customerCount = parent::getCount()) !== false)
         {
             return $customerCount();
@@ -144,6 +155,11 @@ class NormalCustomerManager extends CustomerManager implements ComplexManagerInt
 
 class AdminCustomerManager extends CustomerManager implements ComplexManagerInterface
 {
+    public function __construct()
+    {
+        // If you don't have this, you'll get in a continuous loop!!
+    }
+
 }
 
 ?>

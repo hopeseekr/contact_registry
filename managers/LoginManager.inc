@@ -9,33 +9,20 @@ require_once('DatabaseManager.inc');
 class LoginManager
 {
     private static $instance;
-    private $consultant;
 
-    private function __construct()
+    public function __construct()
     {
-        DatabaseManager::init();        
-    }
-    
-    public static function getInstance()
-    {
-        if (!isset(self::$instance))
+        if (isset(self::$instance))
         {
-            self::$instance = new LoginManager;
+            return self::$instance;
         }
 
-        return self::$instance;
+        self::$instance = $this;
+        DatabaseManager::init();
     }
 
-    private function login()
+    public function login($user, $pass)
     {
-        if (!isset($_POST['username']) || $_POST['username'] == '' || !isset($_POST['password']))
-        {
-            throw new Exception('No user credentials entered.', LOGIN_BLANK_USER);
-        }
-
-        $user = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
-        $pass = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_STRING);
-
         if ($pass != '')
         {
             $pass_cond = 'Password=?';
@@ -44,7 +31,7 @@ class LoginManager
         {
             $pass_cond = 'Password IS NULL';
         }
-    
+
         if (USER_AUTH == 'simple')
         {
             $qs = 'SELECT AccountTypeID, Password, ConsultantID ' .
@@ -56,60 +43,45 @@ class LoginManager
             $qs = 'SELECT AccountTypeID, Password, ConsultantID, Active, PasswordExpires ' .
                   'FROM Consultants WHERE UserName=? AND ' . $pass_cond;
         }
-        
-        $results = DatabaseManager::fetchObject($qs, array($user, $pass));
 
-        if ($results === false)
+        $consultant = DatabaseManager::fetchObject($qs, array($user, $pass));
+
+        if ($consultant === false)
         {
             throw new Exception('Invalid login credentials.', LOGIN_BAD_CREDS);
         }
-        
+
         /* --- For security reasons, only keep the password if it is already NULL --- */
-        if ($results->Password != '')
+        if ($consultant->Password != '')
         {
-            unset($results->Password);
+            unset($consultant->Password);
         }
-    
+
         /* --- The user's access creds are either valid or NULL is returned --- */
-        $this->consultant = $results;
-        $this->consultant->UserName = $user;
+        $consultant->UserName = $user;
+
+        return $consultant;
     }
-    
-    public function validateUser()
+
+    public function validateUser($user, $pass)
     {
         /* If the user cannot log in, an exception is thrown, negating the need for
           further error handling in this scope.  Neat, huh? */
-        $this->login();
-        
-        if (USER_AUTH == 'advanced' && $this->consultant->Active == 0)
+        $consultant = $this->login($user, $pass);
+
+        if (USER_AUTH == 'advanced' && $consultant->Active == 0)
         {
             throw new Exception('Your account is not active.  Please contact your administrator.', LOGIN_INACTIVE);
         }
-         
+
         /* At this point, it is known for a fact that the user has access, so let's create their session. */
-        $this->startSession();
-        
-        if ((isset($this->consultant->Password) && $this->consultant->Password == '') || (USER_AUTH == 'advanced' && strtotime($this->consultant->PasswordExpires) < time()))
+        if ((isset($consultant->Password) && $consultant->Password == '') || (USER_AUTH == 'advanced' && strtotime($consultant->PasswordExpires) < time()))
         {
             throw new Exception('Your password has expired.  Please contact your administrator.', LOGIN_PASSWORD_EXPIRED);
         }
-        
-        /* At this point, the user has access and is good to go. */
-    }
-    
-    public function getConsultant()
-    {
-        return $this->consultant;
-    }
-    
-    private function startSession()
-    {
-        session_start();
 
-        $_SESSION['username'] = $this->consultant->UserName;
-        $_SESSION['ConsultantID'] = $this->consultant->ConsultantID;
-        $_SESSION['AccountTypeID'] = $this->consultant->AccountTypeID;
-        $_SESSION['ip'] = $_SERVER['REMOTE_ADDR'];
+        /* At this point, the user has access and is good to go. */
+        return $consultant;
     }
 }
 ?>

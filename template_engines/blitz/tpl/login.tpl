@@ -16,6 +16,7 @@
         </div>
     {{ END }}
         <form method="post">
+            <input type="hidden" name="action" value="login"/>
             <table id="login">
                 <tr>
                     <th>Username:</th>
