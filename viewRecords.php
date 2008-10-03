@@ -1,6 +1,6 @@
 <?php
 $fetch_amount = 500;
-require_once('config.php');         // Needed for validateSession() and getDB()
+require_once('config.inc');         // Needed for validateSession() and getDB()
 session_start();
 ob_start();
 

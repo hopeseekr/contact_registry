@@ -1,6 +1,6 @@
 <?php
 
-require_once('lib/params.inc');
+//require_once('lib/params.inc');
 
 class ControllerFactory
 {
