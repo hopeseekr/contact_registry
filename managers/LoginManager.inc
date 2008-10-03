@@ -12,13 +12,15 @@ class LoginManager
 
     public function __construct()
     {
-        if (isset(self::$instance))
+        if (self::$instance != null)
         {
             return self::$instance;
         }
 
         self::$instance = $this;
         DatabaseManager::init();
+        
+        return self::$instance;
     }
 
     public function login($user, $pass)
