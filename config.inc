@@ -11,7 +11,8 @@ define('APP_URI', '/sbconsultants');
 
 function getMySQLDBCreds()
 {
-    return array('server' => 'localhost',
+    return array('server' => '127.0.0.1',
+                 'port' => '3307',
                  'user' => 'sbuser',
                  'pass' => 'AKGhDK3',
                  'database' => 'sbconsultants');
