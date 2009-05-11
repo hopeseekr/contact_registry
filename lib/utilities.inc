@@ -15,3 +15,35 @@ function fetchParams($engine_in)
 
     return $params;
 }
+
+function site_uri($view, $action = null, $isSecure = false)
+{
+	$url = ($isSecure == true ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . APP_URI . '/';
+	$clean_parts = '';
+
+	if (isset($_REQUEST['engine']))
+	{
+		$url_parts['engine'] = $_REQUEST['engine'];
+		$clean_parts .= 'engine,' . $_REQUEST['engine'] . '/';
+	}
+
+	$url_parts['view'] = $view;
+	$clean_parts .= $view;
+
+	if (!is_null($action))
+	{
+		$url_parts['action'] = $action;
+		$clean_parts .= '/' . $action;
+	}
+
+	if (APP_CLEAN_URL === true)
+	{
+		$url .= $clean_parts;
+	}
+	else
+	{
+		$url .= 'page.php?' . http_build_query($url_parts);
+	}
+	
+	return $url;
+}
