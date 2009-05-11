@@ -41,6 +41,9 @@ class QuickDOM
         $this->lastNode = $this->doc;
     }
     
+    /**
+     * @return DOMDocument
+     */
     public function getDoc()
     {
         return $this->doc;

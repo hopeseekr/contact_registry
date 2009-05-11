@@ -6,8 +6,8 @@
 */
 
 //define('USER_AUTH', 'simple');
-define('USER_AUTH', 'advanced');
-define('APP_URI', '/sbconsultants');
+define('APP_URI', '/contact_registry');
+define('APP_CLEAN_URL', false);
 
 function getMySQLDBCreds()
 {
@@ -15,7 +15,7 @@ function getMySQLDBCreds()
                  'port' => '3307',
                  'user' => 'sbuser',
                  'pass' => 'AKGhDK3',
-                 'database' => 'sbconsultants');
+                 'database' => 'contact_registry');
 }
 
 function constructParams()

@@ -4,30 +4,27 @@ require_once('factories/ViewFactory.inc');
 
 interface ControllerInterface
 {
-    public function execute($action = null);
+	public function __construct($engine_in);
+    public function execute();
 }
 
 class Controller implements ControllerInterface
 {
-    protected $engine;
-    protected $params;
+	/**
+	 * @var ViewFactory
+	 */
+	protected $view;
 
-    protected $view;
-    protected $manager;
-
-    public function __construct($engine_in, $params_in)
+    public function __construct($engine_in)
     {
-        $this->engine = $engine_in;
-        $this->params = $params_in;
-
-        $this->view = new ViewFactory($this->engine);
+        $this->view = new ViewFactory($engine_in);
     }
 
-    public function execute($action = null)
+    public function execute()
     {
     }
 
-    protected function fetchAction(array $defaults_in = null)
+    protected function fetchAction()
     {
         $action = null;
         if (isset($_POST['action']))
@@ -42,6 +39,7 @@ class Controller implements ControllerInterface
         return $action;
 
 /* --- Maybe I'll use this someday, but since i already did it, don't wanna del it
+ * lol! and now, a year later, I have no fucking idea what the below code does >< -Ted 5/5/2009
         if ($action != null)
         {
             return $action;

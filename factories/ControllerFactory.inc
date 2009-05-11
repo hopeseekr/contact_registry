@@ -1,6 +1,6 @@
 <?php
 
-require('lib/params.inc');
+require('lib/utilities.inc');
 
 class ControllerFactory
 {
@@ -17,7 +17,7 @@ class ControllerFactory
         }
 
         self::$instance = $this;
-        
+   
         $engines = array('blitz' => true,
                          'xslt' => true);
         $engine = 'blitz';
@@ -44,7 +44,7 @@ class ControllerFactory
 
         require($class_file);
 
-        $controller = new $class_name($this->engine, $this->params);
+        $controller = new $class_name($this->engine);
 
         return $controller;
     }
