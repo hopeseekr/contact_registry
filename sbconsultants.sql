@@ -1,8 +1,8 @@
--- MySQL dump 10.11
+-- MySQL dump 10.13  Distrib 5.1.44, for pc-linux-gnu (i686)
 --
--- Host: localhost    Database: sbconsultants
+-- Host: localhost    Database: contact_registry
 -- ------------------------------------------------------
--- Server version	5.0.51b-community-nt
+-- Server version	5.1.44-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -20,17 +20,17 @@
 --
 
 DROP TABLE IF EXISTS `AccountTypes`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-CREATE TABLE `accounttypes` (
-  `AccountTypeID` int(11) NOT NULL auto_increment,
-  `AccountType` varchar(50) default NULL,
-  `AccountDescription` varchar(250) default NULL,
-  `MSAccessTime` timestamp NULL default NULL on update CURRENT_TIMESTAMP,
-  PRIMARY KEY  (`AccountTypeID`),
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `AccountTypes` (
+  `AccountTypeID` int(11) NOT NULL AUTO_INCREMENT,
+  `AccountType` varchar(50) DEFAULT NULL,
+  `AccountDescription` varchar(250) DEFAULT NULL,
+  `MSAccessTime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`AccountTypeID`),
   KEY `UserTypeID` (`AccountTypeID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
-SET character_set_client = @saved_cs_client;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `AccountTypes`
@@ -47,24 +47,24 @@ UNLOCK TABLES;
 --
 
 DROP TABLE IF EXISTS `AllocationLog`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-CREATE TABLE `allocationlog` (
-  `AllocationID` int(11) NOT NULL auto_increment,
-  `RollupID` int(11) default NULL,
-  `ConsultantID` int(11) default NULL,
-  `Active` tinyint(4) default NULL,
-  `MSAccessTime` timestamp NULL default NULL on update CURRENT_TIMESTAMP,
-  PRIMARY KEY  (`AllocationID`),
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `AllocationLog` (
+  `AllocationID` int(11) NOT NULL AUTO_INCREMENT,
+  `RollupID` int(11) DEFAULT NULL,
+  `ConsultantID` int(11) DEFAULT NULL,
+  `Active` tinyint(4) DEFAULT NULL,
+  `MSAccessTime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`AllocationID`),
   KEY `{034834C7-E76F-4AA5-B7D1-7C14E99884A6}` (`RollupID`),
   KEY `{7709C2C9-C82D-4428-88BE-53FFE782C1C3}` (`ConsultantID`),
   KEY `Allocation LogConsultantID` (`ConsultantID`),
   KEY `AllocationID` (`AllocationID`),
   KEY `RollupID` (`RollupID`),
-  CONSTRAINT `allocationlog_ibfk_1` FOREIGN KEY (`RollupID`) REFERENCES `customers` (`RollupID`),
-  CONSTRAINT `allocationlog_ibfk_2` FOREIGN KEY (`ConsultantID`) REFERENCES `consultants` (`ConsultantID`)
+  CONSTRAINT `allocationlog_ibfk_1` FOREIGN KEY (`RollupID`) REFERENCES `Customers` (`RollupID`),
+  CONSTRAINT `allocationlog_ibfk_2` FOREIGN KEY (`ConsultantID`) REFERENCES `Consultants` (`ConsultantID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2201 DEFAULT CHARSET=utf8;
-SET character_set_client = @saved_cs_client;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `AllocationLog`
@@ -81,22 +81,22 @@ UNLOCK TABLES;
 --
 
 DROP TABLE IF EXISTS `ConsultantNotes`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-CREATE TABLE `consultantnotes` (
-  `NoteID` int(11) NOT NULL auto_increment,
-  `RollupID` int(11) default NULL,
-  `ConsultantID` int(11) default NULL,
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ConsultantNotes` (
+  `NoteID` int(11) NOT NULL AUTO_INCREMENT,
+  `RollupID` int(11) DEFAULT NULL,
+  `ConsultantID` int(11) DEFAULT NULL,
   `Notes` longtext,
-  `MSAccessTime` timestamp NULL default NULL on update CURRENT_TIMESTAMP,
-  `CreationDate` datetime default NULL,
-  PRIMARY KEY  (`NoteID`),
+  `MSAccessTime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `CreationDate` datetime DEFAULT NULL,
+  PRIMARY KEY (`NoteID`),
   KEY `ConsultantID` (`ConsultantID`),
   KEY `CustomerAutoID` (`RollupID`),
   KEY `NoteID` (`NoteID`),
-  CONSTRAINT `consultantnotes_ibfk_1` FOREIGN KEY (`RollupID`) REFERENCES `customers` (`RollupID`)
+  CONSTRAINT `consultantnotes_ibfk_1` FOREIGN KEY (`RollupID`) REFERENCES `Customers` (`RollupID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8;
-SET character_set_client = @saved_cs_client;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `ConsultantNotes`
@@ -113,27 +113,27 @@ UNLOCK TABLES;
 --
 
 DROP TABLE IF EXISTS `Consultants`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-CREATE TABLE `consultants` (
-  `ConsultantID` int(11) NOT NULL auto_increment,
-  `ConsultantFirstName` varchar(50) default NULL,
-  `ConsultantLastName` varchar(50) default NULL,
-  `UserName` varchar(50) default NULL,
-  `Password` varchar(42) default NULL,
-  `StartDate` datetime default NULL,
-  `EndDate` datetime default NULL,
-  `AccountTypeID` int(11) default NULL,
-  `MSAccessDate` timestamp NULL default NULL on update CURRENT_TIMESTAMP,
-  `Active` tinyint(4) default NULL,
-  `PasswordExpires` date default NULL,
-  PRIMARY KEY  (`ConsultantID`),
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `Consultants` (
+  `ConsultantID` int(11) NOT NULL AUTO_INCREMENT,
+  `ConsultantFirstName` varchar(50) DEFAULT NULL,
+  `ConsultantLastName` varchar(50) DEFAULT NULL,
+  `UserName` varchar(50) DEFAULT NULL,
+  `Password` varchar(42) DEFAULT NULL,
+  `StartDate` datetime DEFAULT NULL,
+  `EndDate` datetime DEFAULT NULL,
+  `AccountTypeID` int(11) DEFAULT NULL,
+  `MSAccessDate` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `Active` tinyint(4) DEFAULT NULL,
+  `PasswordExpires` date DEFAULT NULL,
+  PRIMARY KEY (`ConsultantID`),
   KEY `{497659CF-2A33-4A2F-BE90-0E9AA45D134D}` (`AccountTypeID`),
   KEY `AccountTypeID` (`AccountTypeID`),
   KEY `AgentID` (`ConsultantID`),
-  CONSTRAINT `consultants_ibfk_1` FOREIGN KEY (`AccountTypeID`) REFERENCES `accounttypes` (`AccountTypeID`)
+  CONSTRAINT `consultants_ibfk_1` FOREIGN KEY (`AccountTypeID`) REFERENCES `AccountTypes` (`AccountTypeID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8;
-SET character_set_client = @saved_cs_client;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `Consultants`
@@ -150,16 +150,16 @@ UNLOCK TABLES;
 --
 
 DROP TABLE IF EXISTS `ContactNumberTypes`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-CREATE TABLE `contactnumbertypes` (
-  `ContactNumberTypeID` int(11) NOT NULL auto_increment,
-  `ContactNumberType` varchar(50) default NULL,
-  `MSAccessTime` timestamp NULL default NULL on update CURRENT_TIMESTAMP,
-  PRIMARY KEY  (`ContactNumberTypeID`),
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ContactNumberTypes` (
+  `ContactNumberTypeID` int(11) NOT NULL AUTO_INCREMENT,
+  `ContactNumberType` varchar(50) DEFAULT NULL,
+  `MSAccessTime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`ContactNumberTypeID`),
   KEY `TypeID` (`ContactNumberTypeID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
-SET character_set_client = @saved_cs_client;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `ContactNumberTypes`
@@ -176,18 +176,18 @@ UNLOCK TABLES;
 --
 
 DROP TABLE IF EXISTS `ContractAccounts`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-CREATE TABLE `contractaccounts` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ContractAccounts` (
   `ContractAccount` varchar(50) NOT NULL,
-  `RollupNumber` int(11) default NULL,
-  `MSAccessTime` timestamp NULL default NULL on update CURRENT_TIMESTAMP,
-  PRIMARY KEY  (`ContractAccount`),
+  `RollupNumber` int(11) DEFAULT NULL,
+  `MSAccessTime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`ContractAccount`),
   UNIQUE KEY `ContractAccount` (`ContractAccount`),
   KEY `{DC42074C-5F40-4545-AF22-95AC8E2E2357}` (`RollupNumber`),
-  CONSTRAINT `contractaccounts_ibfk_1` FOREIGN KEY (`RollupNumber`) REFERENCES `customers` (`RollupID`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `contractaccounts_ibfk_1` FOREIGN KEY (`RollupNumber`) REFERENCES `Customers` (`RollupID`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-SET character_set_client = @saved_cs_client;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `ContractAccounts`
@@ -204,27 +204,27 @@ UNLOCK TABLES;
 --
 
 DROP TABLE IF EXISTS `CustomerContacts`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-CREATE TABLE `customercontacts` (
-  `ContactID` int(11) NOT NULL auto_increment,
-  `RollupID` int(11) default NULL,
-  `ContactFirstName` varchar(255) default NULL,
-  `ContactLastName` varchar(255) default NULL,
-  `ContactNumber` varchar(50) default NULL,
-  `ContactNumberTypeID` int(11) default NULL,
-  `ContactEmail` varchar(250) default NULL,
-  `RecordDate` datetime default NULL,
-  `MSAccessTime` timestamp NULL default NULL on update CURRENT_TIMESTAMP,
-  PRIMARY KEY  (`ContactID`),
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `CustomerContacts` (
+  `ContactID` int(11) NOT NULL AUTO_INCREMENT,
+  `RollupID` int(11) DEFAULT NULL,
+  `ContactFirstName` varchar(255) DEFAULT NULL,
+  `ContactLastName` varchar(255) DEFAULT NULL,
+  `ContactNumber` varchar(50) DEFAULT NULL,
+  `ContactNumberTypeID` int(11) DEFAULT NULL,
+  `ContactEmail` varchar(250) DEFAULT NULL,
+  `RecordDate` datetime DEFAULT NULL,
+  `MSAccessTime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`ContactID`),
   KEY `{3FB2A896-5CB6-4DD3-8AED-15181FF0A12D}` (`RollupID`),
   KEY `ContactID` (`ContactID`),
   KEY `CustomerAutoID` (`RollupID`),
   KEY `tblCustomerContactsContactNumberTypeID` (`ContactNumberTypeID`),
-  CONSTRAINT `customercontacts_ibfk_1` FOREIGN KEY (`RollupID`) REFERENCES `customers` (`RollupID`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `customercontacts_ibfk_2` FOREIGN KEY (`ContactNumberTypeID`) REFERENCES `contactnumbertypes` (`ContactNumberTypeID`)
+  CONSTRAINT `customercontacts_ibfk_1` FOREIGN KEY (`RollupID`) REFERENCES `Customers` (`RollupID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `customercontacts_ibfk_2` FOREIGN KEY (`ContactNumberTypeID`) REFERENCES `ContactNumberTypes` (`ContactNumberTypeID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1264 DEFAULT CHARSET=utf8;
-SET character_set_client = @saved_cs_client;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `CustomerContacts`
@@ -241,23 +241,23 @@ UNLOCK TABLES;
 --
 
 DROP TABLE IF EXISTS `Customers`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-CREATE TABLE `customers` (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `Customers` (
   `RollupID` int(11) NOT NULL,
-  `CustomerName` varchar(150) default NULL,
-  `Address` varchar(150) default NULL,
-  `City` varchar(50) default NULL,
-  `State` varchar(2) default NULL,
-  `Zipcode` varchar(5) default NULL,
-  `Zip4` varchar(4) default NULL,
-  `NumberOfCompanyByZip` int(11) default NULL,
-  `Meters` int(11) default NULL,
-  `LPBID` int(11) default NULL,
-  `Segment` int(11) default NULL,
-  `Territory` int(11) default NULL,
-  `MSAccessTime` timestamp NULL default NULL on update CURRENT_TIMESTAMP,
-  PRIMARY KEY  (`RollupID`),
+  `CustomerName` varchar(150) DEFAULT NULL,
+  `Address` varchar(150) DEFAULT NULL,
+  `City` varchar(50) DEFAULT NULL,
+  `State` varchar(2) DEFAULT NULL,
+  `Zipcode` varchar(5) DEFAULT NULL,
+  `Zip4` varchar(4) DEFAULT NULL,
+  `NumberOfCompanyByZip` int(11) DEFAULT NULL,
+  `Meters` int(11) DEFAULT NULL,
+  `LPBID` int(11) DEFAULT NULL,
+  `Segment` int(11) DEFAULT NULL,
+  `Territory` int(11) DEFAULT NULL,
+  `MSAccessTime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`RollupID`),
   UNIQUE KEY `CustomerID` (`RollupID`),
   KEY `{42C909AA-8CB1-4593-999B-2B5F31F23FD5}` (`Territory`),
   KEY `{97EAC58A-563F-4181-8C14-084BDA602C6F}` (`LPBID`),
@@ -268,11 +268,11 @@ CREATE TABLE `customers` (
   KEY `NumberOfCompanyByZip` (`NumberOfCompanyByZip`),
   KEY `TerritoryID` (`Territory`),
   KEY `Zipcode` (`Zipcode`),
-  CONSTRAINT `customers_ibfk_1` FOREIGN KEY (`Territory`) REFERENCES `territories` (`TerritoryID`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `customers_ibfk_2` FOREIGN KEY (`LPBID`) REFERENCES `lpbtypes` (`LPBID`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `customers_ibfk_3` FOREIGN KEY (`Segment`) REFERENCES `segments` (`SegmentID`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `customers_ibfk_1` FOREIGN KEY (`Territory`) REFERENCES `Territories` (`TerritoryID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `customers_ibfk_2` FOREIGN KEY (`LPBID`) REFERENCES `LPBTypes` (`LPBID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `customers_ibfk_3` FOREIGN KEY (`Segment`) REFERENCES `Segments` (`SegmentID`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-SET character_set_client = @saved_cs_client;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `Customers`
@@ -289,17 +289,17 @@ UNLOCK TABLES;
 --
 
 DROP TABLE IF EXISTS `LPBTypes`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-CREATE TABLE `lpbtypes` (
-  `LPBID` int(11) NOT NULL auto_increment,
-  `LPBType` varchar(4) default NULL,
-  `Description` varchar(50) default NULL,
-  `MSAccessTime` timestamp NULL default NULL on update CURRENT_TIMESTAMP,
-  PRIMARY KEY  (`LPBID`),
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `LPBTypes` (
+  `LPBID` int(11) NOT NULL AUTO_INCREMENT,
+  `LPBType` varchar(4) DEFAULT NULL,
+  `Description` varchar(50) DEFAULT NULL,
+  `MSAccessTime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`LPBID`),
   KEY `LPBID` (`LPBID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
-SET character_set_client = @saved_cs_client;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `LPBTypes`
@@ -316,30 +316,30 @@ UNLOCK TABLES;
 --
 
 DROP TABLE IF EXISTS `Profiles`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-CREATE TABLE `profiles` (
-  `ProfileID` int(11) NOT NULL auto_increment,
-  `RollupID` int(11) default NULL,
-  `CreationDate` datetime default NULL,
-  `CreatorID` int(11) default NULL,
-  `Called` tinyint(4) default NULL,
-  `Visited` tinyint(4) default NULL,
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `Profiles` (
+  `ProfileID` int(11) NOT NULL AUTO_INCREMENT,
+  `RollupID` int(11) DEFAULT NULL,
+  `CreationDate` datetime DEFAULT NULL,
+  `CreatorID` int(11) DEFAULT NULL,
+  `Called` tinyint(4) DEFAULT NULL,
+  `Visited` tinyint(4) DEFAULT NULL,
   `Question1` mediumtext,
   `Question2` mediumtext,
   `Question3` mediumtext,
   `Question4` mediumtext,
   `Question5` mediumtext,
   `Question6` mediumtext,
-  `MSAccessTime` timestamp NULL default NULL on update CURRENT_TIMESTAMP,
-  PRIMARY KEY  (`ProfileID`),
+  `MSAccessTime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`ProfileID`),
   KEY `{6FF68816-DE10-4DE7-B927-81EBBB9F9938}` (`RollupID`),
   KEY `CreatorID` (`CreatorID`),
   KEY `ProfileID` (`ProfileID`),
   KEY `RollupID` (`RollupID`),
-  CONSTRAINT `profiles_ibfk_1` FOREIGN KEY (`RollupID`) REFERENCES `customers` (`RollupID`)
+  CONSTRAINT `profiles_ibfk_1` FOREIGN KEY (`RollupID`) REFERENCES `Customers` (`RollupID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8;
-SET character_set_client = @saved_cs_client;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `Profiles`
@@ -356,17 +356,17 @@ UNLOCK TABLES;
 --
 
 DROP TABLE IF EXISTS `Segments`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-CREATE TABLE `segments` (
-  `SegmentID` int(11) NOT NULL auto_increment,
-  `SegmentName` varchar(50) default NULL,
-  `SegmentDescription` varchar(250) default NULL,
-  `MSAccessTime` timestamp NULL default NULL on update CURRENT_TIMESTAMP,
-  PRIMARY KEY  (`SegmentID`),
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `Segments` (
+  `SegmentID` int(11) NOT NULL AUTO_INCREMENT,
+  `SegmentName` varchar(50) DEFAULT NULL,
+  `SegmentDescription` varchar(250) DEFAULT NULL,
+  `MSAccessTime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`SegmentID`),
   KEY `SegmentID` (`SegmentID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
-SET character_set_client = @saved_cs_client;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `Segments`
@@ -383,17 +383,17 @@ UNLOCK TABLES;
 --
 
 DROP TABLE IF EXISTS `Territories`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-CREATE TABLE `territories` (
-  `TerritoryID` int(11) NOT NULL auto_increment,
-  `TerritoryName` varchar(50) default NULL,
-  `TerritoryDescription` varchar(250) default NULL,
-  `MSAccessTime` timestamp NULL default NULL on update CURRENT_TIMESTAMP,
-  PRIMARY KEY  (`TerritoryID`),
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `Territories` (
+  `TerritoryID` int(11) NOT NULL AUTO_INCREMENT,
+  `TerritoryName` varchar(50) DEFAULT NULL,
+  `TerritoryDescription` varchar(250) DEFAULT NULL,
+  `MSAccessTime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`TerritoryID`),
   KEY `TerritoryID` (`TerritoryID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
-SET character_set_client = @saved_cs_client;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `Territories`
@@ -414,4 +414,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2008-10-03 21:27:54
+-- Dump completed on 2010-02-21 21:47:04
