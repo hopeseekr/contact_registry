@@ -10,7 +10,7 @@ class LoginView extends XSLTView
             $dom->addQuickNode('form_action');
                 $dom->addQuickText('?engine=' . $_GET['engine'] . '&view=login&action=login');
         $dom->addQuickNode('username', $node1);
-                $dom->addQuickText('hopeseekr');
+                $dom->addQuickText('tsmith');
 
         $this->handleRawHTML();
         $this->doc = $dom->getDoc();

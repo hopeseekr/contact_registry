@@ -31,19 +31,18 @@ function __autoload( $className )
 $views = array('login' => true,
                'customers' => true);
 
+// Default to the login view if none is selected.
 if (!isset($_GET['view']))
 {
-    throw new Exception('No view parameter passed');
+    $_GET['view'] = 'login';
 }
-else
-{
-    if (!isset($views[$_GET['view']]) || $views[$_GET['view']] === false)
-    {
-        throw new Exception('Unsupported view');
-    }
 
-    $controller = $_GET['view'];
+if (!isset($views[$_GET['view']]) || $views[$_GET['view']] === false)
+{
+	throw new Exception('Unsupported view');
 }
+
+$controller = $_GET['view'];
 
 $controllerFactory = new ControllerFactory();
 $c = $controllerFactory->loadController($controller);
