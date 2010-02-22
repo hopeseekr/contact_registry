@@ -6,7 +6,7 @@ class LoginController extends Controller implements ControllerInterface
 	 * @var UserManager
 	 */
 	private $UserManager;
-    private $consultant;
+    private $agent;
 
     public function __construct($engine_in)
     {
@@ -52,7 +52,7 @@ class LoginController extends Controller implements ControllerInterface
 		$signals->connect(UserStates::BAD_CREDS, array($this, 'handleLoginFailure'));
 		$signals->connect(UserStates::INACTIVE_USER, array($this, 'handleLoginFailure'));
 		$signals->connect(UserStates::LOGGED_IN, array($this, 'handleLoginSuccess'));
-		$this->consultant = $guard->validateUser($user, $pass);
+		$this->agent = $guard->validateUser($user, $pass);
 	}
 
     public function handleChangePassword()
@@ -68,12 +68,12 @@ class LoginController extends Controller implements ControllerInterface
     {
         $this->startSession();
 
-        if (!isset($_SESSION['AccountTypeID']) || !is_numeric($_SESSION['AccountTypeID']))
+        if (!isset($_SESSION['accountTypeID']) || !is_numeric($_SESSION['accountTypeID']))
         {
-            throw new Exception('AccountTypeID not passed in the _SESSION array.');
+            throw new Exception('accountTypeID not passed in the _SESSION array.');
         }
 
-        $accountTypeID = $_SESSION['AccountTypeID'];
+        $accountTypeID = $_SESSION['accountTypeID'];
 
         if ($accountTypeID == 2)
         {
@@ -99,9 +99,9 @@ class LoginController extends Controller implements ControllerInterface
     {
         session_start();
 
-        $_SESSION['username'] = $this->consultant->UserName;
-        $_SESSION['ConsultantID'] = $this->consultant->ConsultantID;
-        $_SESSION['AccountTypeID'] = $this->consultant->AccountTypeID;
+        $_SESSION['username'] = $this->agent->username;
+        $_SESSION['agentID'] = $this->agent->agentID;
+        $_SESSION['accountTypeID'] = $this->agent->accountTypeID;
         $_SESSION['ip'] = $_SERVER['REMOTE_ADDR'];
     }
 }

@@ -4,17 +4,17 @@ require_once('controllers/Controller.inc');
 
 class CustomerController extends Controller implements ControllerInterface
 {
-    private $consultant;
+    private $agent;
 
     public function execute($action = null)
     {
         xdebug_break();
-        if (!isset($_SESSION['ConsultantID']))
+        if (!isset($_SESSION['agentID']))
         {
-            throw new Exception('ConsultantID is not set in the _SESSION vars');
+            throw new Exception('agentID is not set in the _SESSION vars');
         }
 
-        $params = array('ConsultantID' => $_SESSION['ConsultantID'],
+        $params = array('agentID' => $_SESSION['agentID'],
                         'record' => filter_input(INPUT_GET, 'record', FILTER_VALIDATE_INT));
 
         $this->initialize('customers', $params);
@@ -24,9 +24,10 @@ class CustomerController extends Controller implements ControllerInterface
         {
             $this->showCustomerScreen();
         }
-        else if ($action == 'login')
+        else
         {
-            $this->validateUser();
+        	// Nothing better for a default ;-)
+			$this->showCustomerScreen();
         }
     }
 

@@ -10,7 +10,7 @@ class CustomerManager extends DatabaseManager implements ComplexManagerInterface
 {
     private static $instance;
     protected $customerCount;
-    protected $ConsultantID;
+    protected $agentID;
     protected $recordNumber;
     protected $customer;
 
@@ -22,11 +22,11 @@ class CustomerManager extends DatabaseManager implements ComplexManagerInterface
         }
 
         DatabaseManager::init();
-        if (!isset($params['ConsultantID']) || $params['ConsultantID'] == null)
+        if (!isset($params['agentID']) || $params['agentID'] == null)
         {
-            throw new Exception('ConsultantID was not passed to CustomerManager');
+            throw new Exception('agentID was not passed to CustomerManager');
         }
-        $this->ConsultantID = $ConsultantID;
+        $this->agentID = $agentID;
         $this->recordNumber = $record_in;
 
         if (UserManager::isAdmin() === false)
@@ -66,10 +66,10 @@ class CustomerManager extends DatabaseManager implements ComplexManagerInterface
         {
             $q1s = 'SELECT COUNT(Customers.RollupID) AS CustomerCount ' .
                    'FROM AllocationLog INNER JOIN Customers ON AllocationLog.RollupID = Customers.RollupID ' .
-                   'WHERE ConsultantID=?';
+                   'WHERE agentID=?';
         }
 
-        $count = DatabaseManager::fetchColumn($q1s, array($this->ConsultantID));
+        $count = DatabaseManager::fetchColumn($q1s, array($this->agentID));
         $this->customerCount = $count;
 
         return $count;
@@ -115,9 +115,9 @@ class CustomerManager extends DatabaseManager implements ComplexManagerInterface
                    'LEFT JOIN SegmentTypes ON SegmentTypes.SegmentID = Customers.Segment ' .
                    'LEFT JOIN TerritoryTypes ON TerritoryTypes.TerritoryID = Customers.Territory ' .
                    'LEFT JOIN LPBTypes ON LPBTypes.LPBID = Customers.LPBID ' .
-                   'WHERE ConsultantID=1 ORDER BY Customers.RollupID LIMIT ' . ($this->recordNumber - 1) . ', 1';
+                   'WHERE agentID=1 ORDER BY Customers.RollupID LIMIT ' . ($this->recordNumber - 1) . ', 1';
 
-            $customer = DatabaseManager::fetchArray($q1s, array($ConsultantID));
+            $customer = DatabaseManager::fetchArray($q1s, array($agentID));
 
             $Segments = array($customer['Segment'] => $customer['SegmentName']);
             $Territories = array($customer['Territory'] => $customer['TerritoryName']);
