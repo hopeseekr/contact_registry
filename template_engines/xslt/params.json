@@ -5,6 +5,7 @@
 	},
 	"views": {
 		"login" : { "name": "Login", "template": "login.xsl" },
+		"profile" : { "name": "Profile", "template": "profile.xsl" },
 		"customers" : { "name": "Customer", "template": "customers.xsl" }
 	}
 }
