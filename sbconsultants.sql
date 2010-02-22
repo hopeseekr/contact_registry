@@ -23,12 +23,12 @@ DROP TABLE IF EXISTS `AccountTypes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `AccountTypes` (
-  `AccountTypeID` int(11) NOT NULL AUTO_INCREMENT,
-  `AccountType` varchar(50) DEFAULT NULL,
-  `AccountDescription` varchar(250) DEFAULT NULL,
+  `accountTypeID` int(11) NOT NULL AUTO_INCREMENT,
+  `accountType` varchar(50) DEFAULT NULL,
+  `accountDescription` varchar(250) DEFAULT NULL,
   `MSAccessTime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`AccountTypeID`),
-  KEY `UserTypeID` (`AccountTypeID`)
+  PRIMARY KEY (`accountTypeID`),
+  KEY `userTypeID` (`accountTypeID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -38,7 +38,7 @@ CREATE TABLE `AccountTypes` (
 
 LOCK TABLES `AccountTypes` WRITE;
 /*!40000 ALTER TABLE `AccountTypes` DISABLE KEYS */;
-INSERT INTO `AccountTypes` VALUES (2,'Consultant','Add new records, update and modify existing records.',NULL),(3,'Administrator','Access to Administrator\'s Tools.',NULL);
+INSERT INTO `AccountTypes` VALUES (2,'Agent','Add new records, update and modify existing records.',NULL),(3,'Administrator','Access to Administrator\'s Tools.',NULL);
 /*!40000 ALTER TABLE `AccountTypes` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -50,19 +50,19 @@ DROP TABLE IF EXISTS `AllocationLog`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `AllocationLog` (
-  `AllocationID` int(11) NOT NULL AUTO_INCREMENT,
-  `RollupID` int(11) DEFAULT NULL,
-  `ConsultantID` int(11) DEFAULT NULL,
-  `Active` tinyint(4) DEFAULT NULL,
+  `allocationID` int(11) NOT NULL AUTO_INCREMENT,
+  `rollupID` int(11) DEFAULT NULL,
+  `agentID` int(11) DEFAULT NULL,
+  `active` tinyint(4) DEFAULT NULL,
   `MSAccessTime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`AllocationID`),
-  KEY `{034834C7-E76F-4AA5-B7D1-7C14E99884A6}` (`RollupID`),
-  KEY `{7709C2C9-C82D-4428-88BE-53FFE782C1C3}` (`ConsultantID`),
-  KEY `Allocation LogConsultantID` (`ConsultantID`),
-  KEY `AllocationID` (`AllocationID`),
-  KEY `RollupID` (`RollupID`),
-  CONSTRAINT `allocationlog_ibfk_1` FOREIGN KEY (`RollupID`) REFERENCES `Customers` (`RollupID`),
-  CONSTRAINT `allocationlog_ibfk_2` FOREIGN KEY (`ConsultantID`) REFERENCES `Consultants` (`ConsultantID`)
+  PRIMARY KEY (`allocationID`),
+  KEY `{034834C7-E76F-4AA5-B7D1-7C14E99884A6}` (`rollupID`),
+  KEY `{7709C2C9-C82D-4428-88BE-53FFE782C1C3}` (`agentID`),
+  KEY `Allocation LogagentID` (`agentID`),
+  KEY `allocationID` (`allocationID`),
+  KEY `rollupID` (`rollupID`),
+  CONSTRAINT `allocationlog_ibfk_1` FOREIGN KEY (`rollupID`) REFERENCES `Customers` (`rollupID`),
+  CONSTRAINT `allocationlog_ibfk_2` FOREIGN KEY (`agentID`) REFERENCES `Agents` (`agentID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2201 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -77,72 +77,72 @@ INSERT INTO `AllocationLog` VALUES (1,7,3,1,NULL),(2,54,8,1,NULL),(3,66,1,1,NULL
 UNLOCK TABLES;
 
 --
--- Table structure for table `ConsultantNotes`
+-- Table structure for table `AgentNotes`
 --
 
-DROP TABLE IF EXISTS `ConsultantNotes`;
+DROP TABLE IF EXISTS `AgentNotes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `ConsultantNotes` (
-  `NoteID` int(11) NOT NULL AUTO_INCREMENT,
-  `RollupID` int(11) DEFAULT NULL,
-  `ConsultantID` int(11) DEFAULT NULL,
-  `Notes` longtext,
+CREATE TABLE `AgentNotes` (
+  `noteID` int(11) NOT NULL AUTO_INCREMENT,
+  `rollupID` int(11) DEFAULT NULL,
+  `agentID` int(11) DEFAULT NULL,
+  `notes` longtext,
   `MSAccessTime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-  `CreationDate` datetime DEFAULT NULL,
+  `creationDate` datetime DEFAULT NULL,
   PRIMARY KEY (`NoteID`),
-  KEY `ConsultantID` (`ConsultantID`),
-  KEY `CustomerAutoID` (`RollupID`),
+  KEY `agentID` (`agentID`),
+  KEY `CustomerAutoID` (`rollupID`),
   KEY `NoteID` (`NoteID`),
-  CONSTRAINT `consultantnotes_ibfk_1` FOREIGN KEY (`RollupID`) REFERENCES `Customers` (`RollupID`)
+  CONSTRAINT `consultantnotes_ibfk_1` FOREIGN KEY (`rollupID`) REFERENCES `Customers` (`rollupID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `ConsultantNotes`
+-- Dumping data for table `AgentNotes`
 --
 
-LOCK TABLES `ConsultantNotes` WRITE;
-/*!40000 ALTER TABLE `ConsultantNotes` DISABLE KEYS */;
-INSERT INTO `ConsultantNotes` VALUES (1,4,0,'Start your notes here…….',NULL,NULL),(2,7,0,NULL,NULL,NULL),(3,NULL,1,'test 2',NULL,NULL),(4,NULL,1,'test 3',NULL,NULL),(5,NULL,1,'test 4',NULL,NULL),(6,NULL,2,'a',NULL,NULL),(7,NULL,1,'mashpotatoes',NULL,NULL),(8,167,1,'asdf',NULL,'2008-03-31 04:42:46'),(9,167,1,'asdf',NULL,'2008-03-31 04:42:58'),(10,66,1,'asdfsadfasdfssss','2008-04-04 07:47:34','2008-03-31 04:46:04'),(11,66,1,'1234567',NULL,'2008-03-31 04:49:08'),(12,66,1,'default',NULL,'2008-03-31 04:55:09'),(13,238,3,'HHHHHHHHHHds','2008-03-31 10:08:07','2008-03-31 05:03:02'),(14,498,1,'test',NULL,'2008-03-31 05:19:37'),(15,498,1,'asdf',NULL,'2008-03-31 05:21:57'),(16,406,15,'asdf',NULL,'2008-04-03 22:45:17'),(17,66,1,'sadf',NULL,'2008-04-03 23:16:41');
-/*!40000 ALTER TABLE `ConsultantNotes` ENABLE KEYS */;
+LOCK TABLES `AgentNotes` WRITE;
+/*!40000 ALTER TABLE `AgentNotes` DISABLE KEYS */;
+INSERT INTO `AgentNotes` VALUES (1,4,0,'Start your notes here…….',NULL,NULL),(2,7,0,NULL,NULL,NULL),(3,NULL,1,'test 2',NULL,NULL),(4,NULL,1,'test 3',NULL,NULL),(5,NULL,1,'test 4',NULL,NULL),(6,NULL,2,'a',NULL,NULL),(7,NULL,1,'mashpotatoes',NULL,NULL),(8,167,1,'asdf',NULL,'2008-03-31 04:42:46'),(9,167,1,'asdf',NULL,'2008-03-31 04:42:58'),(10,66,1,'asdfsadfasdfssss','2008-04-04 07:47:34','2008-03-31 04:46:04'),(11,66,1,'1234567',NULL,'2008-03-31 04:49:08'),(12,66,1,'default',NULL,'2008-03-31 04:55:09'),(13,238,3,'HHHHHHHHHHds','2008-03-31 10:08:07','2008-03-31 05:03:02'),(14,498,1,'test',NULL,'2008-03-31 05:19:37'),(15,498,1,'asdf',NULL,'2008-03-31 05:21:57'),(16,406,15,'asdf',NULL,'2008-04-03 22:45:17'),(17,66,1,'sadf',NULL,'2008-04-03 23:16:41');
+/*!40000 ALTER TABLE `AgentNotes` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `Consultants`
+-- Table structure for table `Agents`
 --
 
-DROP TABLE IF EXISTS `Consultants`;
+DROP TABLE IF EXISTS `Agents`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `Consultants` (
-  `ConsultantID` int(11) NOT NULL AUTO_INCREMENT,
-  `ConsultantFirstName` varchar(50) DEFAULT NULL,
-  `ConsultantLastName` varchar(50) DEFAULT NULL,
-  `UserName` varchar(50) DEFAULT NULL,
-  `Password` varchar(42) DEFAULT NULL,
-  `StartDate` datetime DEFAULT NULL,
-  `EndDate` datetime DEFAULT NULL,
-  `AccountTypeID` int(11) DEFAULT NULL,
+CREATE TABLE `Agents` (
+  `agentID` int(11) NOT NULL AUTO_INCREMENT,
+  `firstName` varchar(50) DEFAULT NULL,
+  `lastName` varchar(50) DEFAULT NULL,
+  `username` varchar(50) DEFAULT NULL,
+  `password` varchar(42) DEFAULT NULL,
+  `startDate` datetime DEFAULT NULL,
+  `endDate` datetime DEFAULT NULL,
+  `accountTypeID` int(11) DEFAULT NULL,
   `MSAccessDate` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-  `Active` tinyint(4) DEFAULT NULL,
-  `PasswordExpires` date DEFAULT NULL,
-  PRIMARY KEY (`ConsultantID`),
-  KEY `{497659CF-2A33-4A2F-BE90-0E9AA45D134D}` (`AccountTypeID`),
-  KEY `AccountTypeID` (`AccountTypeID`),
-  KEY `AgentID` (`ConsultantID`),
-  CONSTRAINT `consultants_ibfk_1` FOREIGN KEY (`AccountTypeID`) REFERENCES `AccountTypes` (`AccountTypeID`)
+  `isActive` tinyint(4) DEFAULT NULL,
+  `passwordExpires` date DEFAULT NULL,
+  PRIMARY KEY (`agentID`),
+  KEY `{497659CF-2A33-4A2F-BE90-0E9AA45D134D}` (`accountTypeID`),
+  KEY `accountTypeID` (`accountTypeID`),
+  KEY `agentID` (`agentID`),
+  CONSTRAINT `consultants_ibfk_1` FOREIGN KEY (`accountTypeID`) REFERENCES `AccountTypes` (`accountTypeID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `Consultants`
+-- Dumping data for table `Agents`
 --
 
-LOCK TABLES `Consultants` WRITE;
-/*!40000 ALTER TABLE `Consultants` DISABLE KEYS */;
-INSERT INTO `Consultants` VALUES (1,'Alicia','Sanford','asanford','9d1ce632ce21568d9dd2e41f5aa7a149',NULL,NULL,2,'2008-10-03 21:27:37',1,'2008-09-28'),(2,'Cathy','McNairj','cmcnair','9d1ce632ce21568d9dd2e41f5aa7a149',NULL,NULL,2,'2008-10-03 21:27:37',1,'2008-03-31'),(3,'Citlally','Lara','clara','9d1ce632ce21568d9dd2e41f5aa7a149',NULL,NULL,2,'2008-10-03 21:27:37',1,'2008-03-31'),(4,'Dena','Washington','dwashington','9d1ce632ce21568d9dd2e41f5aa7a149',NULL,NULL,2,'2008-10-03 21:27:37',1,'2008-03-31'),(5,'Heidi','Coco','hcoco','9d1ce632ce21568d9dd2e41f5aa7a149',NULL,NULL,2,'2008-10-03 21:27:37',1,'2008-03-31'),(6,'Jessica','Adlam','jadlam','9d1ce632ce21568d9dd2e41f5aa7a149',NULL,NULL,2,'2008-10-03 21:27:37',1,'2008-03-31'),(7,'LaTricia','Richardson','lrichardson','9d1ce632ce21568d9dd2e41f5aa7a149',NULL,NULL,2,'2008-10-03 21:27:37',1,'2008-03-31'),(8,'Maggie','Carlos','mcarlos','9d1ce632ce21568d9dd2e41f5aa7a149',NULL,NULL,2,'2008-10-03 21:27:37',1,'2008-03-31'),(9,'Phyllis','Wills','pwills','9d1ce632ce21568d9dd2e41f5aa7a149',NULL,NULL,2,'2008-10-03 21:27:37',1,'2008-03-31'),(10,'Roshunda','Carouthers','rcarouthers','9d1ce632ce21568d9dd2e41f5aa7a149',NULL,NULL,2,'2008-10-03 21:27:37',1,'2008-03-31'),(11,'Willie','Izquierdo','wizquierdo','9d1ce632ce21568d9dd2e41f5aa7a149',NULL,NULL,2,'2008-10-03 21:27:37',1,'2008-03-31'),(12,'Mark','Eddings','meddings','9d1ce632ce21568d9dd2e41f5aa7a149',NULL,NULL,3,'2008-10-03 21:27:37',1,'2008-03-31'),(13,'Marcie','Coronado','mcoronado','9d1ce632ce21568d9dd2e41f5aa7a149',NULL,NULL,3,'2008-10-03 21:27:37',1,'2008-03-31'),(14,'dba','dba','dba','9d1ce632ce21568d9dd2e41f5aa7a149',NULL,NULL,3,'2008-10-03 21:27:37',1,'2008-03-31'),(15,'Maria','Ortiz','maortiz','9d1ce632ce21568d9dd2e41f5aa7a149',NULL,NULL,3,'2008-10-03 21:27:37',1,'2008-09-30');
-/*!40000 ALTER TABLE `Consultants` ENABLE KEYS */;
+LOCK TABLES `Agents` WRITE;
+/*!40000 ALTER TABLE `Agents` DISABLE KEYS */;
+INSERT INTO `Agents` VALUES (1,'Alicia','Sanford','asanford','9d1ce632ce21568d9dd2e41f5aa7a149',NULL,NULL,2,'2008-10-03 21:27:37',1,'2008-09-28'),(2,'Cathy','McNairj','cmcnair','9d1ce632ce21568d9dd2e41f5aa7a149',NULL,NULL,2,'2008-10-03 21:27:37',1,'2008-03-31'),(3,'Citlally','Lara','clara','9d1ce632ce21568d9dd2e41f5aa7a149',NULL,NULL,2,'2008-10-03 21:27:37',1,'2008-03-31'),(4,'Dena','Washington','dwashington','9d1ce632ce21568d9dd2e41f5aa7a149',NULL,NULL,2,'2008-10-03 21:27:37',1,'2008-03-31'),(5,'Heidi','Coco','hcoco','9d1ce632ce21568d9dd2e41f5aa7a149',NULL,NULL,2,'2008-10-03 21:27:37',1,'2008-03-31'),(6,'Jessica','Adlam','jadlam','9d1ce632ce21568d9dd2e41f5aa7a149',NULL,NULL,2,'2008-10-03 21:27:37',1,'2008-03-31'),(7,'LaTricia','Richardson','lrichardson','9d1ce632ce21568d9dd2e41f5aa7a149',NULL,NULL,2,'2008-10-03 21:27:37',1,'2008-03-31'),(8,'Maggie','Carlos','mcarlos','9d1ce632ce21568d9dd2e41f5aa7a149',NULL,NULL,2,'2008-10-03 21:27:37',1,'2008-03-31'),(9,'Phyllis','Wills','pwills','9d1ce632ce21568d9dd2e41f5aa7a149',NULL,NULL,2,'2008-10-03 21:27:37',1,'2008-03-31'),(10,'Roshunda','Carouthers','rcarouthers','9d1ce632ce21568d9dd2e41f5aa7a149',NULL,NULL,2,'2008-10-03 21:27:37',1,'2008-03-31'),(11,'Willie','Izquierdo','wizquierdo','9d1ce632ce21568d9dd2e41f5aa7a149',NULL,NULL,2,'2008-10-03 21:27:37',1,'2008-03-31'),(12,'Mark','Eddings','meddings','9d1ce632ce21568d9dd2e41f5aa7a149',NULL,NULL,3,'2008-10-03 21:27:37',1,'2008-03-31'),(13,'Marcie','Coronado','mcoronado','9d1ce632ce21568d9dd2e41f5aa7a149',NULL,NULL,3,'2008-10-03 21:27:37',1,'2008-03-31'),(14,'dba','dba','dba','9d1ce632ce21568d9dd2e41f5aa7a149',NULL,NULL,3,'2008-10-03 21:27:37',1,'2008-03-31'),(15,'Maria','Ortiz','maortiz','9d1ce632ce21568d9dd2e41f5aa7a149',NULL,NULL,3,'2008-10-03 21:27:37',1,'2008-09-30');
+/*!40000 ALTER TABLE `Agents` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -153,11 +153,11 @@ DROP TABLE IF EXISTS `ContactNumberTypes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `ContactNumberTypes` (
-  `ContactNumberTypeID` int(11) NOT NULL AUTO_INCREMENT,
+  `contactNumberTypeID` int(11) NOT NULL AUTO_INCREMENT,
   `ContactNumberType` varchar(50) DEFAULT NULL,
   `MSAccessTime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`ContactNumberTypeID`),
-  KEY `TypeID` (`ContactNumberTypeID`)
+  PRIMARY KEY (`contactNumberTypeID`),
+  KEY `TypeID` (`contactNumberTypeID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -185,7 +185,7 @@ CREATE TABLE `ContractAccounts` (
   PRIMARY KEY (`ContractAccount`),
   UNIQUE KEY `ContractAccount` (`ContractAccount`),
   KEY `{DC42074C-5F40-4545-AF22-95AC8E2E2357}` (`RollupNumber`),
-  CONSTRAINT `contractaccounts_ibfk_1` FOREIGN KEY (`RollupNumber`) REFERENCES `Customers` (`RollupID`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `contractaccounts_ibfk_1` FOREIGN KEY (`RollupNumber`) REFERENCES `Customers` (`rollupID`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -207,22 +207,22 @@ DROP TABLE IF EXISTS `CustomerContacts`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `CustomerContacts` (
-  `ContactID` int(11) NOT NULL AUTO_INCREMENT,
-  `RollupID` int(11) DEFAULT NULL,
-  `ContactFirstName` varchar(255) DEFAULT NULL,
-  `ContactLastName` varchar(255) DEFAULT NULL,
-  `ContactNumber` varchar(50) DEFAULT NULL,
-  `ContactNumberTypeID` int(11) DEFAULT NULL,
-  `ContactEmail` varchar(250) DEFAULT NULL,
-  `RecordDate` datetime DEFAULT NULL,
+  `contactID` int(11) NOT NULL AUTO_INCREMENT,
+  `rollupID` int(11) DEFAULT NULL,
+  `firstName` varchar(255) DEFAULT NULL,
+  `lastName` varchar(255) DEFAULT NULL,
+  `contactNumber` varchar(50) DEFAULT NULL,
+  `contactNumberTypeID` int(11) DEFAULT NULL,
+  `email` varchar(250) DEFAULT NULL,
+  `recordDate` datetime DEFAULT NULL,
   `MSAccessTime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`ContactID`),
-  KEY `{3FB2A896-5CB6-4DD3-8AED-15181FF0A12D}` (`RollupID`),
-  KEY `ContactID` (`ContactID`),
-  KEY `CustomerAutoID` (`RollupID`),
-  KEY `tblCustomerContactsContactNumberTypeID` (`ContactNumberTypeID`),
-  CONSTRAINT `customercontacts_ibfk_1` FOREIGN KEY (`RollupID`) REFERENCES `Customers` (`RollupID`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `customercontacts_ibfk_2` FOREIGN KEY (`ContactNumberTypeID`) REFERENCES `ContactNumberTypes` (`ContactNumberTypeID`)
+  PRIMARY KEY (`contactID`),
+  KEY `{3FB2A896-5CB6-4DD3-8AED-15181FF0A12D}` (`rollupID`),
+  KEY `contactID` (`contactID`),
+  KEY `CustomerAutoID` (`rollupID`),
+  KEY `tblCustomerContactsContactNumberTypeID` (`contactNumberTypeID`),
+  CONSTRAINT `customercontacts_ibfk_1` FOREIGN KEY (`rollupID`) REFERENCES `Customers` (`rollupID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `customercontacts_ibfk_2` FOREIGN KEY (`contactNumberTypeID`) REFERENCES `ContactNumberTypes` (`contactNumberTypeID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1264 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -244,33 +244,31 @@ DROP TABLE IF EXISTS `Customers`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Customers` (
-  `RollupID` int(11) NOT NULL,
-  `CustomerName` varchar(150) DEFAULT NULL,
-  `Address` varchar(150) DEFAULT NULL,
-  `City` varchar(50) DEFAULT NULL,
-  `State` varchar(2) DEFAULT NULL,
-  `Zipcode` varchar(5) DEFAULT NULL,
-  `Zip4` varchar(4) DEFAULT NULL,
-  `NumberOfCompanyByZip` int(11) DEFAULT NULL,
-  `Meters` int(11) DEFAULT NULL,
+  `rollupID` int(11) NOT NULL,
+  `customerName` varchar(150) DEFAULT NULL,
+  `address` varchar(150) DEFAULT NULL,
+  `city` varchar(50) DEFAULT NULL,
+  `state` varchar(2) DEFAULT NULL,
+  `zipcode` varchar(5) DEFAULT NULL,
+  `zip4` varchar(4) DEFAULT NULL,
+  `numberOfCompanyByZip` int(11) DEFAULT NULL,
+  `meters` int(11) DEFAULT NULL,
   `LPBID` int(11) DEFAULT NULL,
-  `Segment` int(11) DEFAULT NULL,
-  `Territory` int(11) DEFAULT NULL,
+  `segmentID` int(11) DEFAULT NULL,
+  `territoryID` int(11) DEFAULT NULL,
   `MSAccessTime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`RollupID`),
-  UNIQUE KEY `CustomerID` (`RollupID`),
-  KEY `{42C909AA-8CB1-4593-999B-2B5F31F23FD5}` (`Territory`),
+  PRIMARY KEY (`rollupID`),
+  UNIQUE KEY `CustomerID` (`rollupID`),
+  KEY `{42C909AA-8CB1-4593-999B-2B5F31F23FD5}` (`territoryID`),
   KEY `{97EAC58A-563F-4181-8C14-084BDA602C6F}` (`LPBID`),
-  KEY `{B9D51EB8-D864-4221-9C19-67CB066E44EA}` (`Segment`),
-  KEY `Customer` (`CustomerName`),
-  KEY `LPBID` (`LPBID`),
-  KEY `Number of Meters` (`Meters`),
-  KEY `NumberOfCompanyByZip` (`NumberOfCompanyByZip`),
-  KEY `TerritoryID` (`Territory`),
-  KEY `Zipcode` (`Zipcode`),
-  CONSTRAINT `customers_ibfk_1` FOREIGN KEY (`Territory`) REFERENCES `Territories` (`TerritoryID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  KEY `{B9D51EB8-D864-4221-9C19-67CB066E44EA}` (`segmentID`),
+  KEY `Customer` (`customerName`),
+  KEY `Number of Meters` (`meters`),
+  KEY `NumberOfCompanyByZip` (`numberOfCompanyByZip`),
+  KEY `Zipcode` (`zipcode`),
+  CONSTRAINT `customers_ibfk_1` FOREIGN KEY (`territoryID`) REFERENCES `Territories` (`territoryID`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `customers_ibfk_2` FOREIGN KEY (`LPBID`) REFERENCES `LPBTypes` (`LPBID`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `customers_ibfk_3` FOREIGN KEY (`Segment`) REFERENCES `Segments` (`SegmentID`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `customers_ibfk_3` FOREIGN KEY (`segmentID`) REFERENCES `Segments` (`segmentID`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -294,7 +292,7 @@ DROP TABLE IF EXISTS `LPBTypes`;
 CREATE TABLE `LPBTypes` (
   `LPBID` int(11) NOT NULL AUTO_INCREMENT,
   `LPBType` varchar(4) DEFAULT NULL,
-  `Description` varchar(50) DEFAULT NULL,
+  `description` varchar(50) DEFAULT NULL,
   `MSAccessTime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`LPBID`),
   KEY `LPBID` (`LPBID`)
@@ -319,25 +317,25 @@ DROP TABLE IF EXISTS `Profiles`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Profiles` (
-  `ProfileID` int(11) NOT NULL AUTO_INCREMENT,
-  `RollupID` int(11) DEFAULT NULL,
-  `CreationDate` datetime DEFAULT NULL,
-  `CreatorID` int(11) DEFAULT NULL,
-  `Called` tinyint(4) DEFAULT NULL,
-  `Visited` tinyint(4) DEFAULT NULL,
-  `Question1` mediumtext,
-  `Question2` mediumtext,
-  `Question3` mediumtext,
-  `Question4` mediumtext,
-  `Question5` mediumtext,
-  `Question6` mediumtext,
+  `profileID` int(11) NOT NULL AUTO_INCREMENT,
+  `rollupID` int(11) DEFAULT NULL,
+  `creationDate` datetime DEFAULT NULL,
+  `creatorID` int(11) DEFAULT NULL,
+  `called` tinyint(4) DEFAULT NULL,
+  `visited` tinyint(4) DEFAULT NULL,
+  `question1` mediumtext,
+  `question2` mediumtext,
+  `question3` mediumtext,
+  `question4` mediumtext,
+  `question5` mediumtext,
+  `question6` mediumtext,
   `MSAccessTime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`ProfileID`),
-  KEY `{6FF68816-DE10-4DE7-B927-81EBBB9F9938}` (`RollupID`),
-  KEY `CreatorID` (`CreatorID`),
-  KEY `ProfileID` (`ProfileID`),
-  KEY `RollupID` (`RollupID`),
-  CONSTRAINT `profiles_ibfk_1` FOREIGN KEY (`RollupID`) REFERENCES `Customers` (`RollupID`)
+  PRIMARY KEY (`profileID`),
+  KEY `{6FF68816-DE10-4DE7-B927-81EBBB9F9938}` (`rollupID`),
+  KEY `creatorID` (`creatorID`),
+  KEY `profileID` (`profileID`),
+  KEY `rollupID` (`rollupID`),
+  CONSTRAINT `profiles_ibfk_1` FOREIGN KEY (`rollupID`) REFERENCES `Customers` (`rollupID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -359,12 +357,12 @@ DROP TABLE IF EXISTS `Segments`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Segments` (
-  `SegmentID` int(11) NOT NULL AUTO_INCREMENT,
-  `SegmentName` varchar(50) DEFAULT NULL,
-  `SegmentDescription` varchar(250) DEFAULT NULL,
+  `segmentID` int(11) NOT NULL AUTO_INCREMENT,
+  `segmentName` varchar(50) DEFAULT NULL,
+  `segmentDescription` varchar(250) DEFAULT NULL,
   `MSAccessTime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`SegmentID`),
-  KEY `SegmentID` (`SegmentID`)
+  PRIMARY KEY (`segmentID`),
+  KEY `segmentID` (`segmentID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -386,12 +384,12 @@ DROP TABLE IF EXISTS `Territories`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Territories` (
-  `TerritoryID` int(11) NOT NULL AUTO_INCREMENT,
-  `TerritoryName` varchar(50) DEFAULT NULL,
-  `TerritoryDescription` varchar(250) DEFAULT NULL,
+  `territoryID` int(11) NOT NULL AUTO_INCREMENT,
+  `territoryName` varchar(50) DEFAULT NULL,
+  `territoryDescription` varchar(250) DEFAULT NULL,
   `MSAccessTime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`TerritoryID`),
-  KEY `TerritoryID` (`TerritoryID`)
+  PRIMARY KEY (`territoryID`),
+  KEY `territoryID` (`territoryID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
