@@ -16,15 +16,14 @@ function fetchParams($engine_in)
     return $params;
 }
 
-function site_uri($view, $action = null, $isSecure = false)
+function site_uri($view, $action = null, $isSecure = true)
 {
-	$url = ($isSecure == true ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . APP_URI . '/';
+	$url = (($isSecure && !APP_FORCE_INSECURE) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . APP_URI . '/';
 	$clean_parts = '';
 
 	if (isset($_REQUEST['engine']))
 	{
-		$url_parts['engine'] = $_REQUEST['engine'];
-		$clean_parts .= 'engine,' . $_REQUEST['engine'] . '/';
+		$_SESSION['template_engine'] = $_REQUEST['engine'];
 	}
 
 	$url_parts['view'] = $view;
@@ -42,7 +41,7 @@ function site_uri($view, $action = null, $isSecure = false)
 	}
 	else
 	{
-		$url .= 'page.php?' . http_build_query($url_parts);
+		$url .= 'index.php?' . http_build_query($url_parts);
 	}
 	
 	return $url;

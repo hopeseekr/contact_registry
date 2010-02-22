@@ -87,7 +87,7 @@ class CustomerController extends Controller implements ControllerInterface
         /* At this point, it is known for a fact that the user has access, so let's create their session. */
         $this->startSession();
         $_SESSION['expiredPassword'] = true;
-        header("Location: https://" . $_SERVER['HTTP_HOST'] . '/changePassword.php');
+        header('Location: ' . site_uri('profile', 'changePassword'));
         exit;
     }
 
@@ -104,13 +104,13 @@ class CustomerController extends Controller implements ControllerInterface
 
         if ($accountTypeID == 2)
         {
-            header("Location: https://" . $_SERVER['HTTP_HOST'] . '/page.php?view=customers');
+            header('Location: ' . site_uri('customers'));
             exit;
         }
         else if ($accountTypeID == 3)
         {
             $_SESSION['admin'] = true;
-            header("Location: https://" . $_SERVER['HTTP_HOST'] . '/admin/');
+            header('Location: ' . site_uri('admin'));
             exit;
         }
     }

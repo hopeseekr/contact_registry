@@ -6,8 +6,9 @@
 */
 
 //define('USER_AUTH', 'simple');
-define('APP_URI', '/contact_registry');
+define('APP_URI', '');
 define('APP_CLEAN_URL', false);
+define('APP_FORCE_INSECURE', true); // Always use http:// mode
 
 function getMySQLDBCreds()
 {
