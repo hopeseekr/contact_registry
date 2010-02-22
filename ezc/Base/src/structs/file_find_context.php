@@ -3,8 +3,8 @@
  * File containing the ezcBaseFileFindContext class.
  *
  * @package Base
- * @version 1.6.1
- * @copyright Copyright (C) 2005-2008 eZ systems as. All rights reserved.
+ * @version 1.8
+ * @copyright Copyright (C) 2005-2009 eZ Systems AS. All rights reserved.
  * @license http://ez.no/licenses/new_bsd New BSD License
  */
 
@@ -12,7 +12,7 @@
  * Struct which defines the information collected by the file walker for locating files.
  *
  * @package Base
- * @version 1.6.1
+ * @version 1.8
  */
 class ezcBaseFileFindContext extends ezcBaseStruct
 {
