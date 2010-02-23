@@ -2,6 +2,8 @@
 session_start();
 ob_start();
 
+chdir('..');
+
 require_once('config.inc');
 
 require_once "ezc/Base/src/base.php"; // dependent on installation method, see below
