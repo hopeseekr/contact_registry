@@ -58,7 +58,7 @@ class LoginController extends Controller implements ControllerInterface
     public function handleChangePassword()
     {
         /* At this point, it is known for a fact that the user has access, so let's create their session. */
-        $this->startSession();
+//        $this->startSession();
         $_SESSION['expiredPassword'] = true;
         header('Location: ' . site_uri('profile', 'changePassword'));
         exit;
@@ -97,8 +97,6 @@ class LoginController extends Controller implements ControllerInterface
     
     private function startSession()
     {
-        session_start();
-
         $_SESSION['username'] = $this->agent->username;
         $_SESSION['agentID'] = $this->agent->agentID;
         $_SESSION['accountTypeID'] = $this->agent->accountTypeID;

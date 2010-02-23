@@ -17,11 +17,7 @@
             </head>
             <body>
                 <h2>Agent Login - XSLT Template</h2>
-<!--
-            {{ BEGIN debug }}
-                <pre>{{ $print_r }}</pre>
-            {{ END }}
--->
+				<xsl:apply-templates select="rawHTML"/>
                 <xsl:apply-templates select="loginFailed"/>
                 <form method="post" action="{form_action}">
                     <table id="login">
@@ -50,7 +46,7 @@
         </div>
     </xsl:template>
     <xsl:template match="rawHTML">
-        <div id="warnings">
+        <div id="warnings" class="debug">
             <xsl:value-of select="."/>
         </div>
     </xsl:template>

@@ -49,7 +49,7 @@
         </div>
     </xsl:template>
     <xsl:template match="rawHTML">
-        <div id="warnings">
+        <div id="warnings" class="debug">
             <xsl:value-of select="."/>
         </div>
     </xsl:template>

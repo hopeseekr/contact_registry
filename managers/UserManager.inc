@@ -44,12 +44,12 @@ class UserManager extends Manager
 
 		if ($pass == '')
 		{
-			$pass_cond = 'Password IS NULL';
+			$pass_cond = 'password IS NULL';
 		}
 		else
 		{
 			$pass = md5($pass);
-			$pass_cond = 'Password=?';
+			$pass_cond = 'password=?';
 		}
 
         $qs = 'SELECT agentID, accountTypeID, password, isActive, passwordExpires ' .
@@ -90,12 +90,13 @@ class UserManager extends Manager
         /* At this point, it is known for a fact that the user has access, so let's create their session. */
         if ((isset($agent->password) && $agent->password == '') || (strtotime($agent->passwordExpires) < time()))
         {
-        	$this->signals->emit(UserStates::EXPIRED_PASSWORD, UserStates::EXPIRED_PASSWORD);
+        	$this->signals->emit(UserStates::EXPIRED_PASSWORD, $agent);
         	return false;
         }
 
         /* At this point, the user has access and is good to go. */
-        $this->signals->emit(UserStates::LOGGED_IN);
+        $this->signals->emit(UserStates::LOGGED_IN, $agent);
+
         return true;
     }
 }
