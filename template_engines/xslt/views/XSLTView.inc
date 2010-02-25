@@ -17,6 +17,10 @@ class XSLTView implements ViewInterface
 		}
 
 		$this->xsl_file = $tmpl_file;
+		$this->doc = new DOMDocument('1.0', 'UTF-8');
+        $dom = new QuickDOM($this->doc);
+
+        $node1 = $dom->addQuickNode('root');
 	}
 
 	public function parse()
@@ -39,8 +43,7 @@ class XSLTView implements ViewInterface
 	public function block($context, array $params = null)
 	{
 		$dom = new QuickDOM($this->doc);
-
-		$root = $this->doc->firstChild;
+		$root = $this->doc->lastChild;
 		$node1 = $dom->addQuickNode($context, $root);
 
 		foreach ($params as $key => $value)

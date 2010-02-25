@@ -4,17 +4,12 @@ class ProfileView extends XSLTView
 {
     public function __construct($tmpl_file, $zone = null)
     {
-        $dom = new QuickDOM();
-
-        $node1 = $dom->addQuickNode('root');
-            $dom->addQuickNode('form_action');
-                $dom->addQuickText(site_uri('login', 'login'));
-        $dom->addQuickNode('username', $node1);
-                $dom->addQuickText('tsmith');
-
-        $this->handleRawHTML();
-        $this->doc = $dom->getDoc();
+		parent::__construct($tmpl_file);
         
-        return parent::__construct($tmpl_file);
+		$dom = new QuickDOM($this->doc);
+		$dom->addQuickNode('form_action', $this->doc->lastChild);
+			$dom->addQuickText(site_uri('login', 'login'));
+		$dom->addQuickNode('username', $this->doc->lastChild);
+			$dom->addQuickText('tsmith');
     }
 }
