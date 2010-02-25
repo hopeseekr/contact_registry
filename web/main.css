@@ -3,3 +3,4 @@ div#warnings { border: 1px dashed black; padding: 10px; }
 table#login { border: 0; }
 table#login td input { width: 200px; }
 table#login .submit { width: 100px; }
+div.debug { white-space: pre; }
