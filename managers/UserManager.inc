@@ -37,7 +37,6 @@ class UserManager extends Manager
         return false;
     }
 
-
 	public function validateUser($user, $pass)
 	{
 		$DB = MyDB::loadDB();
