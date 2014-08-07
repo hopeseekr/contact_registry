@@ -1,7 +1,7 @@
 <?php
 // This file is a part of the PHP xLibs Library.
 //
-// Copyright (c) 2006, 2007 Theodore R. Smith
+// Copyright (c) 2006-2008 Theodore R. Smith
 // Contact: hopeseekr@xmule.ws / http://www.xmule.ws/
 // DSA-1024 Fingerprint: 10A0 6372 9092 85A2 BB7F 907B CB8B 654B E33B F1ED
 //
@@ -18,32 +18,72 @@
 //             must be documented with a unified diff patch provided with
 //             the source.
 
-require_once('debug.inc');
-
 class QuickDOM
 {
     private $doc;
+    private $lastNode;
 
-    public function __construct($doc_in=null)
+    public function __construct(DOMDocument $doc_in = null, $version_in = '1.0', $encoding_in = 'UTF-8')
     {
         if ($doc_in != null)
         {
-            $this->doc = $doc_in;
+            $this->setDoc($doc_in);
+        }
+        else
+        {
+            $this->setDoc(new DOMDocument($version_in, $encoding_in));
         }
     }
 
-    public function SetDoc($doc_in)
+    public function setDoc(DOMDocument $doc_in)
     {
         $this->doc = $doc_in;
+        $this->lastNode = $this->doc;
+    }
+    
+    public function getDoc()
+    {
+        return $this->doc;
     }
 
-    public function QuickImport($parent_in, $node_in)
+    public function import($parent_in, $node_in)
     {
         $parent_in->appendChild($this->doc->importNode($node_in, true));
-
     }
 
-    public function QuickAttr(&$node, $attrs_in=null)
+    public static function load($in)
+    {
+        try
+        {
+            $doc = new DOMDocument('1.0');
+            $doc->load($in);
+        }
+        catch(Exception $e)
+        {
+            backtrace();
+            return null;
+        }
+
+        return $doc;
+    }
+
+    public static function loadXML($in)
+    {
+        try
+        {
+            $doc = new DOMDocument('1.0');
+            $doc->loadXML($in);
+        }
+        catch(Exception $e)
+        {
+            backtrace();
+            return null;
+        }
+
+        return $doc;
+    }
+    
+    public function addAttr(&$node, $attrs_in=null)
     {
         if (is_array($attrs_in))
         {
@@ -54,7 +94,7 @@ class QuickDOM
         }
     }
 
-    public function FastNode($input, $attrs_in=null)
+    public function addNode($input, $attrs_in=null)
     {
         if (is_array($input) == false)
         {
@@ -62,7 +102,7 @@ class QuickDOM
         }
 
         $tmp_node = $this->doc->createElement($input[0]);
-        $this->QuickAttr($tmp_node, $attrs_in);
+        $this->addAttr($tmp_node, $attrs_in);
 
         if ($input[1] != null)
         {
@@ -73,15 +113,17 @@ class QuickDOM
         return $tmp_node;
     }
 
-    public function QuickText(&$parent, $input)
+    public function addQuickText($input, &$parent = null)
     {
+        if ($parent == null) { $parent = $this->lastNode; }
         $txt_node = $this->doc->createTextNode($input);
 
 		return $parent->appendChild($txt_node);
     }
 
-    public function QuickNode(&$parent, $input, $attrs_in=null)
+    public function addQuickNode($input, &$parent = null, $attrs_in = null)
     {
+        if ($parent == null) { $parent = $this->lastNode; }
         if (!$parent)
         {
             trigger_error('$parent is a non-object', E_USER_ERROR);
@@ -89,71 +131,20 @@ class QuickDOM
 
         if (is_object($input) === false)
         {
-            $input = $this->FastNode($input, $attrs_in);
+            $input = $this->addNode($input, $attrs_in);
         }
 
-        return $parent->appendChild($input);
+        $this->lastNode = $parent->appendChild($input);
+        
+        return $this->lastNode;
     }
 
-    public function QuickTextNode(&$parent, $xml_in, $txt_in, $attrs_in=null)
-    {
-        trigger_error('<em>XNA::QuickTextNode is deprecated:</em> use XNA::QuickNode instead.<br/>');
-
-        return $this->QuickNode($parent, array($xml_in, $txt_in), $attrs_in);
-    }
-
-    public function QuickReplace(&$parent, &$child, $input, $attrs_in=null)
+    public function replaceNodes(&$parent, &$child, $input, $attrs_in=null)
     {
         $parent->removeChild($child);
-        $tmp_node = $this->FastNode($input, $attrs_in);
+        $tmp_node = $this->addNode($input, $attrs_in);
 
-        return $this->QuickNode($parent, $tmp_node);
-    }
-
-    public static function load($in)
-    {
-        restore_error_handler();
-
-        $error_level = ini_get('error_reporting');
-        error_reporting($error_level & ~E_STRICT);
-
-        try
-        {
-            $doc = DOMDocument::load($in);
-        }
-        catch(Exception $e)
-        {
-            backtrace();
-            return null;
-        }
-
-        error_reporting($error_level);
-        /* --- I really don't like this hack, but what are my options? :-/ */
-        set_error_handler('error_report');
-        return $doc;
-    }
-
-    public static function loadXML($in)
-    {
-        restore_error_handler();
-
-        $error_level = ini_get('error_reporting');
-        error_reporting($error_level & ~E_STRICT);
-
-        try
-        {
-            $doc = DOMDocument::loadXML($in);
-        }
-        catch(Exception $e)
-        {
-            backtrace();
-            return null;
-        }
-
-        error_reporting($error_level);
-        /* --- I really don't like this hack, but what are my options? :-/ */
-        set_error_handler('error_report');
-        return $doc;
+        return $this->addQuickNode($tmp_node, null, $parent);
     }
 }
 ?>
