@@ -1,9 +1,16 @@
 <?php
 class LoginView extends Blitz
 {
-    public function __construct($tmpl_name)
+    public function __construct()
     {
-        $status = parent::Blitz($tmpl_name);
+        $tmpl_file = dirname(__FILE__) . '/../tpl/login.tpl';
+
+        if (!file_exists($tmpl_file))
+        {
+            throw new Exception('Cannot find Blitz template file: ' . $tmpl_file);
+        }
+
+        $status = parent::Blitz($tmpl_file);
         $this->registerUser();
         $this->set(array('title' => 'Consultant Login'));
         $this->handleRawHTML();

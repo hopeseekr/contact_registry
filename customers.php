@@ -4,12 +4,16 @@ session_start();
 
 ob_start();
 
-require_once('views/CustomerView.inc');
+require_once('views/ViewFactory.inc');
 
-$T = new CustomerView('tpl/customers.tpl');
+$viewFactory = new ViewFactory('blitz');
+//$T = $viewFactory->createView('Customer');
+require_once('template_engines/blitz/views/CustomerView.inc');
+
+$T = new CustomerView();
 
 echo $T->parse();
-
+exit;
 
 if (!isset($_SESSION['ConsultantID']) || !validateSession())
 {
@@ -235,8 +239,6 @@ function getConsultantNote($RollupID, $ConsultantID, $nStart = 0)
     return $note;
 }
 
-$customerCount = getCustomersCount($ConsultantID);
-$customer_info = getCustomerInformation($ConsultantID, $start);
 $customer = $customer_info['customer'];
 $accounts = getContractAccounts($customer->RollupID);
 $contacts = getCustomerContacts($customer->RollupID);
