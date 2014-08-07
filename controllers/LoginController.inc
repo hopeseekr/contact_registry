@@ -60,7 +60,7 @@ class LoginController extends Controller implements ControllerInterface
         /* At this point, it is known for a fact that the user has access, so let's create their session. */
         $this->startSession();
         $_SESSION['expiredPassword'] = true;
-        header('Location: ' . site_uri('changePassword'));
+        header('Location: ' . site_uri('profile', 'changePassword'));
         exit;
     }
 
