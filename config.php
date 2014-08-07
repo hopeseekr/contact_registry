@@ -7,12 +7,13 @@
 
 //define('USER_AUTH', 'simple');
 define('USER_AUTH', 'advanced');
+define('APP_URI', '/sbconsultants');
 
 function getMySQLDBCreds()
 {
     return array('server' => 'localhost',
-                 'user' => 'root',
-                 'pass' => '',
+                 'user' => 'sbuser',
+                 'pass' => 'AKGhDK3',
                  'database' => 'sbconsultants');
 }
 
@@ -135,4 +136,3 @@ function isAdmin()
 {
     trigger_error('Use UserManager::isAdmin() instead.', E_USER_WARNING);
 }
-?>
