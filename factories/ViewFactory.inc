@@ -1,5 +1,13 @@
 <?php
 
+interface ViewInterface
+{
+	public function __construct($tmpl_file);
+	public function parse();
+
+	public function block($context_path, array $parameters = null);	
+}
+
 class ViewFactory
 {
     protected $engine;
@@ -11,28 +19,10 @@ class ViewFactory
         $this->params = fetchParams($engine);
     }
 
-    private function fetchParams()
-    {
-        if (!is_null($this->params))
-        {
-            return $this->params;
-        }
-
-        $params_file = 'template_engines/' . $this->engine . '/params.json';
-
-        if (($data = file_get_contents($params_file)) == null)
-        {
-            throw new Exception('Could not load ' . $params_file);
-        }
-
-        if (($params = json_decode($data)) === false)
-        {
-            throw new Exception('Could not decode JSON: ' . $params_file);
-        }
-
-        $this->params = $params;
-    }
-
+    /**
+     * @param string $view
+     * @return ViewInterface
+     */
     public function createView($view)
     {
         if (!property_exists($this->params->views, $view))
@@ -49,9 +39,8 @@ class ViewFactory
         require_once($class_file);
 
 
-        $blitzView = new $class_name($this->params->views->$view->template);
+        $viewObj = new $class_name($this->params->views->$view->template);
 
-        return $blitzView;
+        return $viewObj;
     }
 }
-?>

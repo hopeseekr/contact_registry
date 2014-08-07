@@ -12,19 +12,16 @@
     <xsl:template match="/root">
         <html>
             <head>
-                <title>Consultant Login - XSLT | SBConsultants</title>
+                <title>Agent Login - XSLT | Contact Registry</title>
                 <link rel="stylesheet" type="text/css" href="main.css"/>
             </head>
             <body>
-                <h2>Consultant Login - XSLT Template</h2>
+                <h2>Agent Login - XSLT Template</h2>
 <!--            {{ BEGIN debug }}
                 <pre>{{ $print_r }}</pre>
             {{ END }}
-            {{ BEGIN loginFailed }}
-                <div id="errors">
-                    <h4>Login failed: {{ $err_msg }}</h4>
-                </div>
-            {{ END }}-->
+-->
+                <xsl:apply-templates select="loginFailed"/>
                 <form method="post" action="{form_action}">
                     <table id="login">
                         <tr>
@@ -45,6 +42,11 @@
                 </form>
             </body>
         </html>
+    </xsl:template>
+    <xsl:template match="loginFailed">
+        <div id="errors">
+            <h4>Login failed: <xsl:value-of select="err_msg"/></h4>
+        </div>
     </xsl:template>
     <xsl:template match="rawHTML">
         <div id="warnings">

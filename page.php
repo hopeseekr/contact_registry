@@ -1,10 +1,32 @@
 <?php
 session_start();
-
 ob_start();
 
 require_once('config.inc');
-require_once('factories/ControllerFactory.inc');
+
+require_once "ezc/Base/src/base.php"; // dependent on installation method, see below
+function __autoload( $className )
+{
+	if (strpos($className, 'Factory') !== false)
+	{
+		require_once "factories/$className.inc";
+	}
+	else if (strpos($className, 'Controller') !== false)
+	{
+		require_once "controllers/$className.inc";
+	}
+	else if (strpos($className, 'Manager') !== false)
+	{
+		require_once "managers/$className.inc";
+	}
+	else
+	{
+		ezcBase::autoload( $className );
+	}	
+}
+
+//require_once 'controllers/Controller.inc';
+//require_once 'managers/UserManager.inc';
 
 $views = array('login' => true,
                'customers' => true);

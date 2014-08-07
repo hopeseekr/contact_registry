@@ -1,24 +1,52 @@
 <?php
 
+require_once 'lib/QuickDOM.inc';
 
-class XSLTView
+class XSLTView implements ViewInterface
 {
     protected $xsl_file;
     protected $doc;
 
-    public function __construct()
-    {
-        $xdom_file = realpath(dirname(__FILE__) . '/../lib/XDOMDocument.inc');
-        require_once($xdom_file);
-    }
+	public function __construct($tmpl_file)
+	{
+		$tmpl_file = realpath(dirname(__FILE__) . '/../tpl/' . $tmpl_file);
 
-    public function parse()
-    {
-        $xsl = new XSLTProcessor();
-        $xsl->importStylesheet(DOMDocument::load($this->xsl_file));
+		if (!file_exists($tmpl_file))
+		{
+			throw new Exception('Cannot find XSLT template file: ' . $tmpl_file);
+		}
 
-        echo $xsl->transformToXML($this->doc);
-    }
+		$this->xsl_file = $tmpl_file;
+	}
+
+	public function parse()
+	{
+		if (isset($_GET['xml']))
+		{
+			$this->doc->formatOutput = true;
+			echo '<pre>', htmlspecialchars($this->doc->saveXML()), '</pre>';
+			exit;
+		}
+
+		$xsl = new XSLTProcessor();
+		$xsl->importStylesheet(DOMDocument::load($this->xsl_file));
+
+		echo $xsl->transformToXML($this->doc);
+	}
+    
+	public function block($context, array $params = null)
+	{
+		$dom = new QuickDOM($this->doc);
+
+		$root = $this->doc->firstChild;
+		$node1 = $dom->addQuickNode($context, $root);
+
+		foreach ($params as $key => $value)
+		{
+			$dom->addQuickNode($key, $node1);
+			$dom->addQuickText($value);
+		}
+	}
     
     protected function handleRawHTML()
     {
@@ -30,7 +58,7 @@ class XSLTView
             // Restart ob_start()
             ob_start();
 
-            //$this->block('rawHTML', array('rawHTML' => $rawHTML));
+            $this->block('rawHTML', array('rawHTML' => $rawHTML));
         }
     }
 }

@@ -2,7 +2,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
     <head>
-        <title>{{ $title }} | SBConsultants</title>
+        <title>{{ $title }} | Contact Registry</title>
         <link rel="stylesheet" type="text/css" href="main.css"/>
     </head>
     <body>

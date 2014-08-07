@@ -1,21 +1,22 @@
 <?php
 
-require_once('controllers/Controller.inc');
-
 class LoginController extends Controller implements ControllerInterface
 {
+	/**
+	 * @var UserManager
+	 */
+	private $UserManager;
     private $consultant;
 
-    public function execute($action = null)
+    public function __construct($engine_in)
     {
-/*
-        $manager_name = $this->params->views->$view->name . 'Manager';
-        $manager_file = realpath('managers/' . $manager_name . '.inc');
-
-        require_once($manager_file);
-
-        $this->manager = new $manager_name($params);
- */
+    	$this->UserManager = new UserManager;
+    	
+    	return parent::__construct($engine_in);
+    }
+    
+    public function execute()
+    {
         $action = $this->fetchAction();
 
         if ($action == null || $action == 'show login screen')
@@ -24,72 +25,46 @@ class LoginController extends Controller implements ControllerInterface
         }
         else if ($action == 'login')
         {
-            $this->validateUser();
+            $this->login();
         }
     }
 
-    private function showLoginScreen()
-    {
-        $view = $this->view->createView('login');
-        echo $view->parse();
-    }
+	private function showLoginScreen()
+	{
+		$view = $this->view->createView('login');
+		echo $view->parse();
+	}
 
-    private function validateUser()
-    {
-        if (!isset($_POST['username']) || $_POST['username'] == '' || !isset($_POST['password']))
-        {
-            throw new Exception('No user credentials entered.', LOGIN_BLANK_USER);
-        }
+	private function login()
+	{
+		if (!isset($_POST['username']) || $_POST['username'] == '' || !isset($_POST['password']))
+		{
+			$this->showLoginScreen();
+			return;
+		}
 
-        $user = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
-        $pass = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_STRING);
+		$user = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
+		$pass = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_STRING);
+		
+		$guard = $this->UserManager;
+		$signals = $guard->signals();
+		$signals->connect(UserStates::EXPIRED_PASSWORD, array($this, 'handleChangePassword'));
+		$signals->connect(UserStates::BAD_CREDS, array($this, 'handleLoginFailure'));
+		$signals->connect(UserStates::INACTIVE_USER, array($this, 'handleLoginFailure'));
+		$signals->connect(UserStates::LOGGED_IN, array($this, 'handleLoginSuccess'));
+		$this->consultant = $guard->validateUser($user, $pass);
+	}
 
-        /* --- Make sure we have a valid, active user with an uptodate password --- */
-        try
-        {
-            $guard = $this->manager;
-            $this->consultant = $guard->validateUser($user, $pass);
-        }
-        catch(Exception $e)
-        {
-            $code = $e->getCode();
-            $msg = $e->getMessage();
-
-            if ($code == LOGIN_BLANK_USER)
-            {
-                // A blank form is a distinct possibility; let's do nothing.
-                $this->showLoginScreen();
-            }
-            else if ($code == LOGIN_BAD_CREDS ||
-                     $code == LOGIN_INACTIVE)
-            {
-                $this->handleLoginFailure($msg);
-            }
-            else if ($code == LOGIN_PASSWORD_EXPIRED)
-            {
-                $this->handleChangePassword();
-            }
-            else
-            {
-                /* Because any thing could happen */
-                throw new Exception($msg, $code);
-            }
-        }
-
-        /* At this point, it is known for a fact that the user has access, so let's create their session. */
-        $this->handleLoginSuccess();
-    }
-
-    private function handleChangePassword()
+    public function handleChangePassword()
     {
         /* At this point, it is known for a fact that the user has access, so let's create their session. */
         $this->startSession();
         $_SESSION['expiredPassword'] = true;
-        header("Location: https://" . $_SERVER['HTTP_HOST'] . '/changePassword.php');
+        header('Location: ' . site_uri('changePassword', null, true));
         exit;
     }
 
-    private function handleLoginSuccess()
+    public function handleLoginSuccess()
     {
         $this->startSession();
 
@@ -113,6 +88,13 @@ class LoginController extends Controller implements ControllerInterface
         }
     }
 
+	public function handleLoginFailure($reason)
+	{
+		$view = $this->view->createView('login');
+		$view->block('loginFailed', array('err_msg' => $reason));
+		echo $view->parse();
+	}
+    
     private function startSession()
     {
         session_start();
