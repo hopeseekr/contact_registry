@@ -7,6 +7,11 @@
     </head>
     <body>
         <h2>Consultant Login</h2>
+    {{ BEGIN loginFailed }}
+        <div id="errors">
+            <h4>Login failed: {{ $err_msg }}</h4>
+        </div>
+    {{ END }}
         <form method="post">
             <table id="login">
                 <tr>

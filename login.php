@@ -17,9 +17,20 @@ if (isset($_POST['username']))
     }
     catch(Exception $e)
     {
-        if ($e->getCode() == LOGIN_BLANK_USER)
+        $code = $e->getCode();
+
+        if ($code == LOGIN_BLANK_USER)
         {
             // A blank form is a distinct possibility; let's do nothing.
+        }
+        else if ($code == LOGIN_BAD_CREDS)
+        {
+            $T->handleLoginFailed($e->getMessage());
+        }
+        else
+        {
+            /* Because any thing could happen */
+            throw new Exception($e->getMessage(), $e->getCode());
         }
     }
 }
@@ -29,10 +40,6 @@ echo $T->parse();
 
 function login()
 {
-        require_once('lib/db.php');
-
-        db_connect();
-
         $results = validateUser($_POST['username'], $_POST['password']);
 
         /* --- The user has been authenticated --- */

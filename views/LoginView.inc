@@ -38,5 +38,10 @@ class LoginView extends Blitz
             $this->block('rawHTML', array('rawHTML' => $rawHTML));
         }
     }
+    
+    public function handleLoginFailed($err_msg = null)
+    {
+        $this->block('loginFailed', array('err_msg' => $err_msg));
+    }
 }
 ?>
