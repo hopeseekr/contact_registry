@@ -35,10 +35,10 @@ class QuickDOM
         }
     }
 
-    public function setDoc(DOMDocument $doc_in)
+    public function setDoc(DOMDocument &$doc_in)
     {
         $this->doc = $doc_in;
-        $this->lastNode = $this->doc;
+        $this->lastNode = is_object($this->doc->lastChild) ? $this->doc->lastChild : $this->doc;
     }
     
     /**
@@ -49,7 +49,7 @@ class QuickDOM
         return $this->doc;
     }
 
-    public function import($parent_in, $node_in)
+    public function import(&$parent_in, $node_in)
     {
         $parent_in->appendChild($this->doc->importNode($node_in, true));
     }
@@ -124,7 +124,7 @@ class QuickDOM
 		return $parent->appendChild($txt_node);
     }
 
-    public function addQuickNode($input, &$parent = null, $attrs_in = null)
+    public function addQuickNode($input, $parent = null, $attrs_in = null)
     {
         if ($parent == null) { $parent = $this->lastNode; }
         if (!$parent)
