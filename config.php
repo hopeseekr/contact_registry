@@ -68,28 +68,35 @@ function validateUser($user_in, $pass_in)
         $pass_cond = 'Password IS NULL';
     }
 
-    $dbh = MDB2::singleton();
+    $dbh = $GLOBALS['dbh'];
 
     if (USER_AUTH == 'simple')
     {
-        $qs = $dbh->prepare('SELECT AccountTypeID, Password, ConsultantID ' .
-                            'FROM tblConsultants WHERE UserName=? AND ' . $pass_cond);
+        $qs = 'SELECT AccountTypeID, Password, ConsultantID ' .
+              'FROM Consultants WHERE UserName=? AND ' . $pass_cond;
+//        print $qs;
     }
     else if (USER_AUTH == 'advanced')
     {
         $pass_in = md5($pass_in);
-        $qs = $dbh->prepare('SELECT AccountTypeID, Password, ConsultantID, Active, PasswordExpires ' .
-                            'FROM tblConsultants WHERE UserName=? AND ' . $pass_cond);
+        $qs = 'SELECT AccountTypeID, Password, ConsultantID, Active, PasswordExpires ' .
+              'FROM tblConsultants WHERE UserName=? AND ' . $pass_cond;
     }
 
-    $res = $qs->execute(array($user_in, $pass_in));
-    $results = $res->fetchRow();
-    
-    /* --- For security reasons, only keep the password if it is already NULL --- */
-
-    if ($results->password != '')
+    $query = $dbh->prepare($qs);
+    if ($query === false)
     {
-        unset($results->password);
+        print $qs;
+        print $dbh->error;
+    }
+    
+    $query->execute(array($user_in, md5($pass_in)));
+    $results = $query->fetchObject();
+
+    /* --- For security reasons, only keep the password if it is already NULL --- */
+    if ($results->Password != '')
+    {
+        unset($results->Password);
     }
 
     /* --- The user has been validated or NULL is returned --- */
@@ -140,7 +147,7 @@ function isAdmin()
     {
         return true;
     }
-    
+
     return false;
 }
 ?>

@@ -46,13 +46,11 @@ function db_connect()
     {
         $options = array('debug' => 2,
                          'portability' => MDB2_PORTABILITY_ALL);
-        $dbh = MDB2::singleton($dsn, $options);
-        $dbh->setFetchMode(MDB2_FETCHMODE_OBJECT);
-
-        if (PEAR::isError($dbh))
-        {
-            throw new Exception($dbh->getMessage());
-        }
+//        $dbh = new mysqli;
+//        $dbh->connect($db['server'], $db['user'], $db['pass'], $db['database']);
+        $dbh = new PDO($dsn, $db['user'], $db['pass']);
+        
+        $GLOBALS['dbh'] = $dbh;
 
         return $dbh;
     }

@@ -1,15 +1,34 @@
 <?php
-function expiredPassword()
+
+ob_start();
+
+require_once('views/LoginView.inc');
+require_once('controllers/LoginController.inc');
+
+$T = new LoginView('tpl/login.tpl');
+
+if (isset($_POST['username']))
 {
-    $_SESSION['expiredPassword'] = true;
-    header("Location: http://" . $_SERVER['HTTP_HOST'] . '/changePassword.php');
-    exit;
+    $guard = LoginController::getInstance();
+
+    try
+    {
+        $guard->validateUser();
+    }
+    catch(Exception $e)
+    {
+        if ($e->getCode() == LOGIN_BLANK_USER)
+        {
+            // A blank form is a distinct possibility; let's do nothing.
+        }
+    }
 }
+
+echo $T->parse();
+
 
 function login()
 {
-    if (isset($_POST['username']))
-    {
         require_once('lib/db.php');
 
         db_connect();
@@ -25,25 +44,25 @@ function login()
                 
                 return false;
             }
-    
+
             session_start();
-    
+
             $_SESSION['username'] = $_POST['username'];
-            $_SESSION['ConsultantID'] = $results->consultantid;
-            $_SESSION['AccountTypeID'] = $results->accounttypeid;
+            $_SESSION['ConsultantID'] = $results->ConsultantID;
+            $_SESSION['AccountTypeID'] = $results->AccountTypeID;
             $_SESSION['ip'] = $_SERVER['REMOTE_ADDR'];
 
-            if ((isset($results->password) && $results->password == '') || (USER_AUTH == 'advanced' && strtotime($results->passwordexpires) < time()))
+            if ((isset($results->Password) && $results->Password == '') || (USER_AUTH == 'advanced' && strtotime($results->PasswordExpires) < time()))
             {
-                expiredPassword();
+                self::handleExpiredPassword();
             }
     
-            if ($results->accounttypeid == 2)
+            if ($results->AccountTypeID == 2)
             {
                 header("Location: http://" . $_SERVER['HTTP_HOST'] . '/customers.php');
                 exit;
             }
-            else if ($results->accounttypeid == 3)
+            else if ($results->AccountTypeID == 3)
             {
                 $_SESSION['admin'] = true;
                 header("Location: http://" . $_SERVER['HTTP_HOST'] . '/admin/');
@@ -51,7 +70,7 @@ function login()
             }
             else
             {
-                trigger_error($_POST['username'] . ' has an invalid Account Type of ' . $results->accounttypeid, E_USER_ERROR);
+                trigger_error($_POST['username'] . ' has an invalid Account Type of ' . $results->AccountTypeID, E_USER_ERROR);
             }
         }
         else
@@ -59,34 +78,6 @@ function login()
             print '<h1>Login failed!!</h1>';
             return false;
         }
-    }
 }
 
-login();
 ?>
-<html>
-    <head>
-        <title>Login | SBConsultants</title>
-    </head>
-    <body>
-        <h2>Consultant Login</h2>
-        <form method="post">
-            <table style="border: 0">
-                <tr>
-                    <th>Username:</th>
-                    <td><input type="text" id="username" name="username" style="width: 200px" value="<?php echo $_POST['username']; ?>"/></td>
-                </tr>
-                <tr>
-                    <th>Password:</th>
-                    <td><input type="password" id="password" name="password" style="width: 200px"/></td>
-                </tr>
-                <tr>
-                    <td>&nbsp;</td>
-                    <td>
-                        <input type="submit" value="Log in" style="width: 100px"/>
-                    </td>
-                </tr>
-            </table>
-        </form>
-    </body>
-</html>

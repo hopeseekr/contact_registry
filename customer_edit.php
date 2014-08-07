@@ -12,7 +12,7 @@ require_once('config.php');
 require_once('lib/db.php');
 db_connect();
 
-$q1s = sprintf('UPDATE tblcustomers SET CustomerName="%s", Address="%s", City="%s", ' .
+$q1s = sprintf('UPDATE Customers SET CustomerName="%s", Address="%s", City="%s", ' .
                'State="%s", Zipcode="%s", Zip4="%s", NumberOfCompanyByZip=%d, Meters=%d ' .
                'WHERE RollupID=%d',
                mysql_real_escape_string($_POST['CustomerName']),
@@ -27,7 +27,7 @@ $q1s = sprintf('UPDATE tblcustomers SET CustomerName="%s", Address="%s", City="%
 
 if (isAdmin() == true)
 {
-    $q1s = sprintf('UPDATE tblcustomers SET CustomerName="%s", Address="%s", City="%s", ' .
+    $q1s = sprintf('UPDATE Customers SET CustomerName="%s", Address="%s", City="%s", ' .
                    'State="%s", Zipcode="%s", Zip4="%s", NumberOfCompanyByZip=%d, Meters=%d, ' .
                    'LPBID=%d, Segment=%d, Territory=%d ' .
                    'WHERE RollupID=%d',

@@ -3,30 +3,32 @@
 <html>
     <head>
         <title>{{ $title }} | SBConsultants</title>
+        <link rel="stylesheet" type="text/css" href="main.css"/>
     </head>
     <body>
         <h2>Consultant Login</h2>
-        <h4>Welcome back {{ $username }}!!</h4>
         <form method="post">
-            <table style="border: 0">
+            <table id="login">
                 <tr>
                     <th>Username:</th>
-                    <td><input type="text" id="username" name="username" style="width: 200px" value="{{ $username }}"/></td>
+                    <td><input type="text" id="username" name="username" value="{{ $username }}"/></td>
                 </tr>
                 <tr>
                     <th>Password:</th>
-                    <td><input type="password" id="password" name="password" style="width: 200px"/></td>
+                    <td><input type="password" id="password" name="password"/></td>
                 </tr>
                 <tr>
                     <td>&nbsp;</td>
                     <td>
-                        <input type="submit" value="Log in" style="width: 100px"/>
+                        <input type="submit" value="Log in" class="submit"/>
                     </td>
                 </tr>
             </table>
         </form>
-        <div id="warnings" style="border: 1px dashed black; padding: 10px">
+    {{ BEGIN rawHTML }}
+        <div id="warnings">
             {{$rawHTML}}
         </div>
+    {{ END }}
     </body>
 </html>
