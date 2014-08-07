@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
     <head>
@@ -6,7 +6,7 @@
         <link rel="stylesheet" type="text/css" href="main.css"/>
     </head>
     <body>
-        <h2>Consultant Login</h2>
+        <h2>Consultant Login - Blitz Template</h2>
     {{ BEGIN debug }}
         <pre>{{ $print_r }}</pre>
     {{ END }}

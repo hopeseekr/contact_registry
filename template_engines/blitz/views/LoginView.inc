@@ -3,7 +3,7 @@ class LoginView extends Blitz
 {
     public function __construct($tmpl_file)
     {
-        $tmpl_file = dirname(__FILE__) . '/../tpl/' . $tmpl_file;
+        $tmpl_file = realpath(dirname(__FILE__) . '/../tpl/' . $tmpl_file);
 
         if (!file_exists($tmpl_file))
         {
@@ -99,7 +99,7 @@ class LoginView extends Blitz
 
         if ($accountTypeID == 2)
         {
-            header("Location: https://" . $_SERVER['HTTP_HOST'] . '/customers.php');
+            header("Location: https://" . $_SERVER['HTTP_HOST'] . '/page.php?view=customers');
             exit;
         }
         else if ($accountTypeID == 3)
