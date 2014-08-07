@@ -55,17 +55,20 @@ class LoginController extends Controller implements ControllerInterface
 		$this->agent = $guard->validateUser($user, $pass);
 	}
 
-    public function handleChangePassword()
+    public function handleChangePassword(stdClass $agent)
     {
-        /* At this point, it is known for a fact that the user has access, so let's create their session. */
-//        $this->startSession();
+    	$this->agent = $agent;
+
+    	/* At this point, it is known for a fact that the user has access, so let's create their session. */
+        $this->startSession();
         $_SESSION['expiredPassword'] = true;
         header('Location: ' . site_uri('profile', 'changePassword'));
         exit;
     }
 
-    public function handleLoginSuccess()
+    public function handleLoginSuccess(stdClass $agent)
     {
+		$this->agent = $agent;
         $this->startSession();
 
         if (!isset($_SESSION['accountTypeID']) || !is_numeric($_SESSION['accountTypeID']))
