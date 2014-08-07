@@ -20,7 +20,7 @@ class ControllerFactory
    
         $engines = array('blitz' => true,
                          'xslt' => true);
-        $engine = 'blitz';
+        $engine = 'xslt';
         if (isset($_GET['engine']))
         {
             if (!isset($engines[$_GET['engine']]) || $engines[$_GET['engine']] === false)
