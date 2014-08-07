@@ -1,14 +1,23 @@
 <?php
 
-//require_once('lib/params.inc');
+require('lib/params.inc');
 
 class ControllerFactory
 {
     private $engine;
     private $params;
+    private static $instance;
 
     public function __construct()
     {
+        // Singleton pattern
+        if (isset(self::$instance))
+        {
+            return self::$instance;
+        }
+
+        self::$instance = $this;
+        
         $engines = array('blitz' => true,
                          'xslt' => true);
         $engine = 'blitz';
@@ -24,6 +33,8 @@ class ControllerFactory
 
         $this->engine = $engine;
         $this->params = fetchParams($engine);
+
+        return self::$instance;
     }
 
     public function loadController($controller)
