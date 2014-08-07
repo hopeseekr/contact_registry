@@ -19,6 +19,20 @@ class XSLTView
 
         echo $xsl->transformToXML($this->doc);
     }
+    
+    protected function handleRawHTML()
+    {
+        /* --- See if there is non-templated output. --- */
+        if (ob_get_length() > 0)
+        {
+            trigger_error('There is raw, non-templated HTML output!', E_USER_NOTICE);
+            //$rawHTML = ob_get_clean();
+            // Restart ob_start()
+            ob_start();
+
+            //$this->block('rawHTML', array('rawHTML' => $rawHTML));
+        }
+    }
 }
 
 ?>

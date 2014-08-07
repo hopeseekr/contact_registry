@@ -1,4 +1,6 @@
 <?php
+require_once('lib/QuickDOM.inc');
+
 class LoginView extends XSLTView
 {
     public function __construct($tmpl_file)
@@ -11,11 +13,19 @@ class LoginView extends XSLTView
         }
 
         $this->xsl_file = $tmpl_file;
-        $this->doc = new DOMDocument('1.0');
+        $dom = new QuickDOM(); 
 
+        $node1 = $dom->addQuickNode('root');
+            $dom->addQuickNode('form_action');
+                $dom->addQuickText('?' . $_SERVER['QUERY_STRING'] . '&action=login');
+        $dom->addQuickNode('username', $node1);
+                $dom->addQuickText('hopeseekr');
+                
         $this->validateUser();
         $this->handleRawHTML();
 
+        $this->doc = $dom->getDoc();
+        
         return parent::__construct();
     }
 
@@ -23,8 +33,8 @@ class LoginView extends XSLTView
     {
         if (isset($_POST['username']))
         {
-            $guard = LoginManager::getInstance();
-
+            $guard = new LoginManager;
+            
             /* --- Make sure we have a valid, active user with an uptodate password --- */
             try
             {
@@ -59,20 +69,6 @@ class LoginView extends XSLTView
         //    $consultant = $guard->getConsultant();
         //    $T->block('debug', array('print_r' => print_r($consultant, true)));
             $this->handleLoginSuccess();
-        }
-    }
-
-    private function handleRawHTML()
-    {
-        /* --- See if there is non-templated output. --- */
-        if (ob_get_length() > 0)
-        {
-            trigger_error('There is raw, non-templated HTML output!', E_USER_NOTICE);
-            $rawHTML = ob_get_clean();
-            // Restart ob_start()
-            ob_start();
-
-            $this->block('rawHTML', array('rawHTML' => $rawHTML));
         }
     }
 

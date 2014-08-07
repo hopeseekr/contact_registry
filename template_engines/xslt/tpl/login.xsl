@@ -9,10 +9,10 @@
                 xml:lang="en_US"
                 indent="yes"
                 omit-xml-declaration="yes"/>
-    <xsl:template match="/">
+    <xsl:template match="/root">
         <html>
             <head>
-                <title>{{ $title }} | SBConsultants</title>
+                <title>Consultant Login - XSLT | SBConsultants</title>
                 <link rel="stylesheet" type="text/css" href="main.css"/>
             </head>
             <body>
@@ -25,7 +25,7 @@
                     <h4>Login failed: {{ $err_msg }}</h4>
                 </div>
             {{ END }}-->
-                <form method="post">
+                <form method="post" action="{form_action}">
                     <table id="login">
                         <tr>
                             <th>Username:</th>

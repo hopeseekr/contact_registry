@@ -22,16 +22,7 @@ else
 
     $controller = $_GET['view'];
 }
-//xdebug_break();
+
 $controllerFactory = new ControllerFactory();
 $c = $controllerFactory->loadController($controller);
 $c->execute();
-exit;
-
-
-$viewFactory = new ViewFactory($engine);
-$T = $viewFactory->createView($view);
-//require_once('template_engines/blitz/views/CustomerView.inc');
-
-echo $T->parse();
-?>

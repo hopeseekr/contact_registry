@@ -8,7 +8,14 @@ class LoginController extends Controller implements ControllerInterface
 
     public function execute($action = null)
     {
-        $this->initialize('login');
+/*
+        $manager_name = $this->params->views->$view->name . 'Manager';
+        $manager_file = realpath('managers/' . $manager_name . '.inc');
+
+        require_once($manager_file);
+
+        $this->manager = new $manager_name($params);
+ */
         $action = $this->fetchAction();
 
         if ($action == null || $action == 'show login screen')

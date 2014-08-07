@@ -42,7 +42,7 @@ class ControllerFactory
         $class_name = $this->params->views->$controller->name . 'Controller';
         $class_file = realpath('controllers/' . $class_name . '.inc');
 
-        require_once($class_file);
+        require($class_file);
 
         $controller = new $class_name($this->engine, $this->params);
 
