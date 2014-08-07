@@ -28,8 +28,10 @@ function __autoload( $className )
 //require_once 'controllers/Controller.inc';
 //require_once 'managers/UserManager.inc';
 
+// FIXME: views should come directly from <template_engine>/params.json.
 $views = array('login' => true,
-               'customers' => true);
+               'customers' => true,
+               'profile' => true);
 
 // Default to the login view if none is selected.
 if (!isset($_GET['view']))
