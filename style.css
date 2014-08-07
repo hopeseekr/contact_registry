@@ -14,8 +14,7 @@
 #contract_accounts { width: 48%; height: 375px; overflow: auto; float: right; border: 1px solid black; }
 #customer_contacts { width: 100%; height: 100px; overflow: auto; border: 1px solid black; }
 #customer_contacts table th { text-align: left; }
-.err_msg { color: red; font-weight: bold; text-align: center; background: darkblue; width: 10em; padding: 5px;
-           position: absolute; top: 30px; left: 150px; }
+.err_msg { color: red; }
 .summary { text-align: center; font-weight: bold; }
 
 #customer_profile { width: 48%; float: left; }
@@ -31,7 +30,4 @@
 #var_main table { width: 1200px; border-collapse: collapse; border:1px solid black; }
 #var_main table th { text-align: left; margin: 2px; }
 #var_main table td { margin: 5px; }
-#var_main .TotalZip { width: 10px; text-align: center; }
-
- .addEditRecord { float: left; }
-.deleteRecord { float: right; }
+#var_main .TotalZip { width: 10px; text-align: center; }   
