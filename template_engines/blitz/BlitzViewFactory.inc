@@ -17,9 +17,11 @@ class BlitzViewFactory extends ViewFactory
         }
 
         $class_name = $this->params->views->$view->class;
-        $class_file = dirname(__FILE__) . '/views/' . $class_name . '.inc';
+        $class_file = realpath(dirname(__FILE__) . '/views/' . $class_name . '.inc');
+        $manager_file =  realpath('managers/' . $this->params->views->$view->manager . '.inc');
 
         require_once($class_file);
+        require_once($manager_file);
 
         $blitzView = new $class_name($this->params->views->$view->template);
 

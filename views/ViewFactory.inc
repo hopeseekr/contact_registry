@@ -21,20 +21,6 @@ class ViewFactory
         $this->fetchParams();
     }
 
-    private function findView($class_name, $class_file)
-    {
-        if (!file_exists($class_file))
-        {
-            throw new Exception('Template Engine\'s Factory implementation was not found: ' . $class_file);
-        }
-
-        require_once($class_file);
-
-        $viewFactory = new $class_name($this->params);
-
-        return $viewFactory;
-    }
-
     private function fetchParams()
     {
         if (!is_null($this->params))
@@ -62,7 +48,9 @@ class ViewFactory
         $class_name = $this->params->engine->name . 'ViewFactory';
         $class_file = realpath('template_engines/' . $this->params->engine->dir . '/' . $class_name . '.inc');
 
-        $viewFactory = $this->findView($class_name, $class_file);
+        require_once($class_file);
+
+        $viewFactory = new $class_name($this->params);
 
         return $viewFactory->createView($view);
     }

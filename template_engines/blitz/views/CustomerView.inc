@@ -1,11 +1,10 @@
 <?php
-require_once('managers/CustomerManager.inc');
 
 class CustomerView extends Blitz
 {
-    public function __construct()
+    public function __construct($tmpl_file)
     {
-        $tmpl_file = dirname(__FILE__) . '/../tpl/customers.tpl';
+        $tmpl_file = dirname(__FILE__) . '/../tpl/' . $tmpl_file;
 
         if (!file_exists($tmpl_file))
         {

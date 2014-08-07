@@ -11,26 +11,58 @@ class LoginView extends Blitz
         }
 
         $status = parent::Blitz($tmpl_file);
-        $this->registerUser();
+
+        $this->validateUser();
         $this->set(array('title' => 'Consultant Login'));
         $this->handleRawHTML();
 
         return $status;
     }
 
-    public function registerUser()
+    private function validateUser()
     {
-        $user = '';
-        if (isset($_REQUEST['username']))
+        if (isset($_POST['username']))
         {
-            $user = filter_input(INPUT_GET, 'username', FILTER_SANITIZE_STRING);
-        }
+            $guard = LoginManager::getInstance();
 
-        $this->set(array('username' => $user));
-        return $user;
+            /* --- Make sure we have a valid, active user with an uptodate password --- */
+            try
+            {
+                $guard->validateUser();
+            }
+            catch(Exception $e)
+            {
+                $code = $e->getCode();
+                $msg = $e->getMessage();
+
+                if ($code == LOGIN_BLANK_USER)
+                {
+                    // A blank form is a distinct possibility; let's do nothing.
+                }
+                else if ($code == LOGIN_BAD_CREDS ||
+                         $code == LOGIN_INACTIVE)
+                {
+                    $T->handleLoginFailure($msg);
+                }
+                else if ($code == LOGIN_PASSWORD_EXPIRED)
+                {
+                    $T->handleChangePassword();
+                }
+                else
+                {
+                    /* Because any thing could happen */
+                    throw new Exception($msg, $code);
+                }
+            }
+
+            /* The user is now logged in */
+        //    $consultant = $guard->getConsultant();
+        //    $T->block('debug', array('print_r' => print_r($consultant, true)));
+            $this->handleLoginSuccess();
+        }
     }
 
-    public function handleRawHTML()
+    private function handleRawHTML()
     {
         /* --- See if there is non-templated output. --- */
         if (ob_get_length() > 0)
@@ -44,19 +76,19 @@ class LoginView extends Blitz
         }
     }
 
-    public function handleChangePassword()
+    private function handleChangePassword()
     {
         $_SESSION['expiredPassword'] = true;
         header("Location: https://" . $_SERVER['HTTP_HOST'] . '/changePassword.php');
         exit;
     }
 
-    public function handleLoginFailure($err_msg = null)
+    private function handleLoginFailure($err_msg = null)
     {
         $this->block('loginFailed', array('err_msg' => $err_msg));
     }
 
-    public function handleLoginSuccess()
+    private function handleLoginSuccess()
     {
         if (!isset($_SESSION['AccountTypeID']) || !is_numeric($_SESSION['AccountTypeID']))
         {

@@ -5,6 +5,6 @@
 	},
 	"views": {
 		"login" : { "class": "LoginView", "manager": "LoginManager", "template": "login.tpl" },
-		"customer" : { "class": "CustomerView", "manager": "CustomerManager", "template": "customer.tpl" }
+		"customer" : { "class": "CustomerView", "manager": "CustomerManager", "template": "customers.tpl" }
 	}
 }
