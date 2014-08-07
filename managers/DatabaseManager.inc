@@ -5,12 +5,19 @@ class DatabaseManager
 {
     private static $instance;
     private static $dbh;
-    
-    protected function __construct()
+
+    public function __construct()
     {
+        if (isset(self::$instance))
+        {
+            return self::$instance;
+        }
+
+        self::$instance = $this;
+
         self::$dbh = db_connect();
     }
-    
+
     public static function init()
     {
         if (!isset(self::$instance))
@@ -18,7 +25,7 @@ class DatabaseManager
             self::$instance = new DatabaseManager;
         }
     }
-    
+
     /* $sql is either a plaintext SQL query or an array (part1, part2, ...) */
     private static function prep($sql_in, $params_in)
     {
@@ -27,7 +34,7 @@ class DatabaseManager
         {
             $sql = join(' ', $sql_in);
         }
-        
+
         $query = self::$dbh->prepare($sql);
         $query->execute($params_in);
 
@@ -35,10 +42,10 @@ class DatabaseManager
         {
             throw new Exception('Query was not completed successfully: ' . $sql);
         }
-        
+
         return $query;
     }
-    
+
     public static function fetchColumn($sql_in, $params_in = null)
     {
         $query = self::prep($sql_in, $params_in);
@@ -46,7 +53,7 @@ class DatabaseManager
 
         return $result;
     }
-    
+
     public static function fetchObject($sql_in, $params_in = null)
     {
         $query = self::prep($sql_in, $params_in);

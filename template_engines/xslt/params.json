@@ -1,0 +1,10 @@
+{
+	"engine": {
+		"name": "XSLT",
+		"dir": "xslt"
+	},
+	"views": {
+		"login" : { "name": "Login", "template": "login.xsl" },
+		"customers" : { "name": "Customer", "template": "customers.xsl" }
+	}
+}

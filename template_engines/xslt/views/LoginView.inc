@@ -1,5 +1,5 @@
 <?php
-class LoginView extends Blitz
+class LoginView extends XSLTView
 {
     public function __construct($tmpl_file)
     {
@@ -7,22 +7,23 @@ class LoginView extends Blitz
 
         if (!file_exists($tmpl_file))
         {
-            throw new Exception('Cannot find Blitz template file: ' . $tmpl_file);
+            throw new Exception('Cannot find XSLT template file: ' . $tmpl_file);
         }
 
-        $status = parent::Blitz($tmpl_file);
+        $this->xsl_file = $tmpl_file;
+        $this->doc = new DOMDocument('1.0');
 
-        $this->set(array('title' => 'Consultant Login'));
+        $this->validateUser();
         $this->handleRawHTML();
 
-        return $status;
+        return parent::__construct();
     }
 
     private function validateUser()
     {
         if (isset($_POST['username']))
         {
-            $guard = new LoginManager;
+            $guard = LoginManager::getInstance();
 
             /* --- Make sure we have a valid, active user with an uptodate password --- */
             try
@@ -98,7 +99,7 @@ class LoginView extends Blitz
 
         if ($accountTypeID == 2)
         {
-            header("Location: https://" . $_SERVER['HTTP_HOST'] . '/customers.php');
+            header("Location: https://" . $_SERVER['HTTP_HOST'] . '/page.php?view=customers');
             exit;
         }
         else if ($accountTypeID == 3)
