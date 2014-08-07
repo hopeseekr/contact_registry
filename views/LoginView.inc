@@ -39,9 +39,38 @@ class LoginView extends Blitz
         }
     }
     
-    public function handleLoginFailed($err_msg = null)
+    public function handleChangePassword()
+    {
+        $_SESSION['expiredPassword'] = true;
+        header("Location: https://" . $_SERVER['HTTP_HOST'] . '/changePassword.php');
+        exit;
+    }
+
+    public function handleLoginFailure($err_msg = null)
     {
         $this->block('loginFailed', array('err_msg' => $err_msg));
+    }
+
+    public function handleLoginSuccess()
+    {
+        if (!isset($_SESSION['AccountTypeID']) || !is_numeric($_SESSION['AccountTypeID']))
+        {
+            throw new Exception('AccountTypeID not passed in the _SESSION array.');
+        }
+        
+        $accountTypeID = $_SESSION['AccountTypeID'];
+
+        if ($accountTypeID == 2)
+        {
+            header("Location: https://" . $_SERVER['HTTP_HOST'] . '/customers.php');
+            exit;
+        }
+        else if ($accountTypeID == 3)
+        {
+            $_SESSION['admin'] = true;
+            header("Location: https://" . $_SERVER['HTTP_HOST'] . '/admin/');
+            exit;
+        }
     }
 }
 ?>

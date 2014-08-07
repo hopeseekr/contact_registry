@@ -16,16 +16,6 @@ function getMySQLDBCreds()
                  'database' => 'sbconsultants');
 }
 
-/*function getDB()
-{
-    return getMySQLDBCreds();
-}*/
-
-function getSQLiteCreds()
-{
-    return '/var/www/blinds.com/htdocs/sbconsultants.sdb';
-}
-
 function constructParams()
 {
     $params  = '';

@@ -8,9 +8,10 @@ require_once('controllers/LoginController.inc');
 $T = new LoginView('tpl/login.tpl');
 
 if (isset($_POST['username']))
-{
+{    
     $guard = LoginController::getInstance();
 
+    /* --- Make sure we have a valid, active user with an uptodate password --- */
     try
     {
         $guard->validateUser();
@@ -18,73 +19,34 @@ if (isset($_POST['username']))
     catch(Exception $e)
     {
         $code = $e->getCode();
+        $msg = $e->getMessage();
 
         if ($code == LOGIN_BLANK_USER)
         {
             // A blank form is a distinct possibility; let's do nothing.
         }
-        else if ($code == LOGIN_BAD_CREDS)
+        else if ($code == LOGIN_BAD_CREDS ||
+                 $code == LOGIN_INACTIVE)
         {
-            $T->handleLoginFailed($e->getMessage());
+            $T->handleLoginFailure($msg);
+        }
+        else if ($code == LOGIN_PASSWORD_EXPIRED)
+        {
+            $T->handleChangePassword();
         }
         else
         {
             /* Because any thing could happen */
-            throw new Exception($e->getMessage(), $e->getCode());
+            throw new Exception($msg, $code);
         }
     }
+
+    /* The user is now logged in */
+//    $consultant = $guard->getConsultant();
+//    $T->block('debug', array('print_r' => print_r($consultant, true)));
+    $T->handleLoginSuccess();
 }
 
 echo $T->parse();
-
-
-function login()
-{
-        $results = validateUser($_POST['username'], $_POST['password']);
-
-        /* --- The user has been authenticated --- */
-        if ($results != null)
-        {
-            if (USER_AUTH == 'advanced' && $results->active == 0)
-            {
-                print '<h2>Your account is not active.  Please contact your administrator.</h2>';
-                
-                return false;
-            }
-
-            session_start();
-
-            $_SESSION['username'] = $_POST['username'];
-            $_SESSION['ConsultantID'] = $results->ConsultantID;
-            $_SESSION['AccountTypeID'] = $results->AccountTypeID;
-            $_SESSION['ip'] = $_SERVER['REMOTE_ADDR'];
-
-            if ((isset($results->Password) && $results->Password == '') || (USER_AUTH == 'advanced' && strtotime($results->PasswordExpires) < time()))
-            {
-                self::handleExpiredPassword();
-            }
-    
-            if ($results->AccountTypeID == 2)
-            {
-                header("Location: http://" . $_SERVER['HTTP_HOST'] . '/customers.php');
-                exit;
-            }
-            else if ($results->AccountTypeID == 3)
-            {
-                $_SESSION['admin'] = true;
-                header("Location: http://" . $_SERVER['HTTP_HOST'] . '/admin/');
-                exit;
-            }
-            else
-            {
-                trigger_error($_POST['username'] . ' has an invalid Account Type of ' . $results->AccountTypeID, E_USER_ERROR);
-            }
-        }
-        else
-        {
-            print '<h1>Login failed!!</h1>';
-            return false;
-        }
-}
 
 ?>

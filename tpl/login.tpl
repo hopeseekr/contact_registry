@@ -7,6 +7,9 @@
     </head>
     <body>
         <h2>Consultant Login</h2>
+    {{ BEGIN debug }}
+        <pre>{{ $print_r }}</pre>
+    {{ END }}
     {{ BEGIN loginFailed }}
         <div id="errors">
             <h4>Login failed: {{ $err_msg }}</h4>
