@@ -29,7 +29,7 @@ class UserManager extends Manager
     public static function isAdmin()
     {
         if (isset($_SESSION['admin']) && $_SESSION['admin'] == 1 &&
-            $_SESSION['AccountTypeID'] == 3)
+            $_SESSION['accountTypeID'] == 3)
         {
             return true;
         }

@@ -373,7 +373,7 @@ if (!isset($_GET['newN']))
                 <input type="hidden" name="note" value="<?php echo $nStart; ?>"/>
                 <input type="hidden" name="NoteID" value="<?php echo $note[0]; ?>"/>
                 <input type="hidden" name="RollupID" value="<?php echo $note[1]; ?>"/>
-                <input type="hidden" name="ConsultantID" value="<?php echo $note[2]; ?>"/>
+                <input type="hidden" name="agentID" value="<?php echo $note[2]; ?>"/>
                 <input type="hidden" name="CreationDate" value="<?php echo $note[5] ?>"/>
                 <table>
                     <tr>

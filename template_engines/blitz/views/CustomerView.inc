@@ -108,12 +108,12 @@ class CustomerView extends Blitz
 
     public function handleLoginSuccess()
     {
-        if (!isset($_SESSION['AccountTypeID']) || !is_numeric($_SESSION['AccountTypeID']))
+        if (!isset($_SESSION['accountTypeID']) || !is_numeric($_SESSION['accountTypeID']))
         {
-            throw new Exception('AccountTypeID not passed in the _SESSION array.');
+            throw new Exception('accountTypeID not passed in the _SESSION array.');
         }
 
-        $accountTypeID = $_SESSION['AccountTypeID'];
+        $accountTypeID = $_SESSION['accountTypeID'];
 
         if ($accountTypeID == 2)
         {
