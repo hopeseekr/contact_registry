@@ -48,8 +48,6 @@ function db_connect()
 //        $dbh = new mysqli;
 //        $dbh->connect($db['server'], $db['user'], $db['pass'], $db['database']);
         $dbh = new PDO($dsn, $db['user'], $db['pass']);
-        
-        $GLOBALS['dbh'] = $dbh;
 
         return $dbh;
     }
