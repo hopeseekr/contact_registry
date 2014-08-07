@@ -4,30 +4,7 @@ define('LOGIN_BAD_CREDS', 2);
 define('LOGIN_INACTIVE', 3);
 define('LOGIN_PASSWORD_EXPIRED', 4);
 
-require_once('lib/db.php');
-
-class DatabaseController
-{
-    private static $instance;
-    protected $dbh;
-    public $id;
-    
-    protected function __construct()
-    {
-        $this->id = rand(5, 2000); 
-        $this->dbh = db_connect();
-    }
-    
-    public static function getInstance()
-    {
-        if (!isset(self::$instance))
-        {
-            self::$instance = new LoginController;
-        }
-
-        return self::$instance;
-    }
-}
+require_once('DatabaseController.inc');
 
 class LoginController extends DatabaseController
 {
