@@ -8,9 +8,11 @@ if (!isset($_POST['RollupID']) || !isset($_POST['CustomerName']))
 }
 session_start();
 require_once('config.php');
+$db = getDB();
 
-require_once('lib/db.php');
-db_connect();
+mysql_connect($db['server'], $db['user'], $db['pass']);
+mysql_select_db($db['database']);
+print mysql_error();
 
 $q1s = sprintf('UPDATE tblcustomers SET CustomerName="%s", Address="%s", City="%s", ' .
                'State="%s", Zipcode="%s", Zip4="%s", NumberOfCompanyByZip=%d, Meters=%d ' .

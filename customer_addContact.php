@@ -9,9 +9,11 @@ if (!isset($_POST['RollupID']) || !isset($_POST['ContactFirstName']))
 }
 
 require_once('config.php');
+$db = getDB();
 
-require_once('lib/db.php');
-db_connect();
+mysql_connect($db['server'], $db['user'], $db['pass']);
+mysql_select_db($db['database']);
+print mysql_error();
 
 $q1s = sprintf('INSERT INTO tblcustomercontacts (RollupID, ContactFirstName, ContactLastName, ' .
                'ContactNumber, ContactNumberTypeID, ContactEmail, RecordDate) ' .

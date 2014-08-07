@@ -10,28 +10,23 @@ if (!isset($_POST['RollupID']) || !isset($_POST['ConsultantID']))
 
 //print '<pre>' . print_r($_POST, true) . '</pre>';
 require_once('config.php');
+$db = getDB();
 
-require_once('lib/db.php');
-db_connect();
-$dbh = $GLOBALS['dbh'];
+mysql_connect($db['server'], $db['user'], $db['pass']);
+mysql_select_db($db['database']);
+print mysql_error();
 
-$q1s = 'INSERT INTO tblconsultantnotes (RollupID, CreationDate, ConsultantID, Notes) VALUES (?, "' . date('c') . '", ?, ?)';
-printf('INSERT INTO tblconsultantnotes (RollupID, CreationDate, ConsultantID, Notes) VALUES (%d, "' . date('c') . '", %d, "%s")',
-       $_POST['RollupID'],
-       $_POST['ConsultantID'],
-       $_POST['Notes']);
-$qs = $dbh->prepare($q1s);
+$q1s = sprintf('INSERT INTO tblconsultantnotes (RollupID, CreationDate, ConsultantID, Notes) ' .
+               'VALUES (%d, NOW(), %d, "%s")',
+               mysql_real_escape_string($_POST['RollupID']),
+               mysql_real_escape_string($_POST['ConsultantID']),
+               mysql_real_escape_string($_POST['Notes']));
 
-//$qs->execute(array($_POST['RollupID'], $_POST['ConsultantID'], $_POST['Notes']));
-print_r($_POST['RollupID']);
-exit;
 $params  = constructParams();
 
-if ($qs->rowCount() == 0)
+if (mysql_query($q1s) === false)
 {
-    $err_msg = $qs->errorInfo();
-
-    header("Location: http://" . $_SERVER['HTTP_HOST'] . '/customers.php?accounts_err=insert+failed&reason=' . urlencode($err_msg[2]) . '&ContractAccount=' . urlencode($_POST['ContractAccount']) . "&$params");
+    header("Location: http://" . $_SERVER['HTTP_HOST'] . '/customers.php?accounts_err=insert+failed&reason=' . urlencode(mysql_error()) . '&ContractAccount=' . urlencode($_POST['ContractAccount']) . "&$params");
 }
 else
 {
