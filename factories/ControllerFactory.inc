@@ -21,14 +21,14 @@ class ControllerFactory
         $engines = array('blitz' => true,
                          'xslt' => true);
         $engine = 'xslt';
-        if (isset($_GET['engine']))
+        if (isset($_SESSION['template_engine']))
         {
-            if (!isset($engines[$_GET['engine']]) || $engines[$_GET['engine']] === false)
+            if (!isset($engines[$_SESSION['template_engine']]) || $engines[$_SESSION['template_engine']] === false)
             {
                 throw new Exception('Unsupported engine.');
             }
 
-            $engine = $_GET['engine'];
+            $engine = $_SESSION['template_engine'];
         }
 
         $this->engine = $engine;
