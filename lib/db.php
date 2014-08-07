@@ -14,8 +14,9 @@ function db_connect()
     if (!isset($_REQUEST['db']) || $_REQUEST['db'] == 'mysql')
     {
         $db = getMySQLDBCreds();
-        $dsn = sprintf('mysql:host=%s;dbname=%s',
+        $dsn = sprintf('mysql:host=%s;port=%s;dbname=%s',
                        $db['server'],
+                       $db['port'],
                        $db['database']);
         setcookie('db', 'mysql');
     }
