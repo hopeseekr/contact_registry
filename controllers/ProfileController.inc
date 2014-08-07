@@ -49,7 +49,9 @@ class ProfileController extends Controller implements ControllerInterface
 	{
 		print '<pre>' . print_r($_SESSION, true) . '</pre>';
 		$view = $this->view->createView('profile');
+//		$view->block('rawHTML', array('rawHTML2' => print_r($_SESSION, true)));
 		$view->block('changePassword', array('username' => $_SESSION['username']));
+		echo $view->parse();
 	}
 }
 

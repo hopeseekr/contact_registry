@@ -11,7 +11,7 @@ interface ControllerInterface
 class Controller implements ControllerInterface
 {
 	/**
-	 * @var ViewFactory
+	 * @var ViewInterface
 	 */
 	protected $view;
 
@@ -82,6 +82,7 @@ class Controller implements ControllerInterface
         }
 */
     }
+        
 }
 
 ?>
