@@ -1,7 +1,7 @@
 <?php
 require_once('lib/db.php');
 
-class DatabaseController
+class DatabaseManager
 {
     private static $instance;
     protected $dbh;
@@ -17,7 +17,7 @@ class DatabaseController
     {
         if (!isset(self::$instance))
         {
-            self::$instance = new LoginController;
+            self::$instance = new LoginManager;
         }
 
         return self::$instance;
