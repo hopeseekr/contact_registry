@@ -7,7 +7,7 @@ if (!isset($_POST['ContactID']) || !isset($_POST['ContactFirstName']))
     exit;
 }
 
-require_once('config.php');
+require_once('config.inc');
 
 require_once('lib/db.php');
 db_connect();

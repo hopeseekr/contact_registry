@@ -3,7 +3,7 @@ ini_set('zend.ze1_compatibility_mode', '0');
 
 function db_connect()
 {
-    require_once('config.php');
+    require_once('config.inc');
 
     /* --- If the cookie differs with the _GET, favor the _GET --- */
     if (isset($_GET['db']))

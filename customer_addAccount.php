@@ -8,7 +8,7 @@ if (!isset($_POST['RollupNumber']) || !isset($_POST['ContractAccount']))
     exit;
 }
 ++$_POST['profile'];
-require_once('config.php');
+require_once('config.inc');
 
 require_once('lib/db.php');
 db_connect();

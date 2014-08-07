@@ -9,7 +9,7 @@ if (!isset($_POST['RollupID']) || !isset($_POST['ConsultantID']))
 }
 
 //print '<pre>' . print_r($_POST, true) . '</pre>';
-require_once('config.php');
+require_once('config.inc');
 
 require_once('lib/db.php');
 db_connect();
