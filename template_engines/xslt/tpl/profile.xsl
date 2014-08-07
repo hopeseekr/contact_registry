@@ -47,7 +47,7 @@
     </xsl:template>
     <xsl:template match="rawHTML">
         <div id="warnings" class="debug">
-            <xsl:value-of select="."/>
+            <xsl:value-of select="." disable-output-escaping="yes"/>
         </div>
     </xsl:template>
 </xsl:stylesheet>

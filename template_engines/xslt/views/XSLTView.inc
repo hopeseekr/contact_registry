@@ -21,6 +21,8 @@ class XSLTView implements ViewInterface
 
 	public function parse()
 	{
+		$this->handleRawHTML();
+
 		if (isset($_GET['xml']))
 		{
 			$this->doc->formatOutput = true;
@@ -53,15 +55,14 @@ class XSLTView implements ViewInterface
         /* --- See if there is non-templated output. --- */
         if (ob_get_length() > 0)
         {
-            $rawHTML = ob_get_clean();
             trigger_error('There is raw, non-templated HTML output!', E_USER_NOTICE);
+            $rawHTML = ob_get_clean();
             // Restart ob_start()
             ob_start();
 
 			$dom = new QuickDOM($this->doc);
-			$dom->addQuickNode('rawHTML', $this->doc->lastChild);
-			$dom->addQuickText($rawHTML);
-	        $this->doc = $dom->getDoc();
+			$dom->addQuickNode(array('rawHTML', $rawHTML));
+//	        $this->doc = $dom->getDoc();
         }
     }
 }
